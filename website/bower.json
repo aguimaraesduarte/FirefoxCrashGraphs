@@ -1,0 +1,28 @@
+{
+  "name": "Mozilla Crash Report",
+  "homepage": "https://github.com/aguimaraesduarte/CrashGraphs",
+  "authors": [
+    "mozilla"
+  ],
+  "description": "Dashboard for Mozilla Crash Statistics",
+  "main": "js/main.js",
+  "license": "MPLV2",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "mg-line-brushing": "^0.0.6",
+    "metrics-graphics": "^2.11.0",
+    "jquery-ui": "^1.12.1",
+    "jquery": "^3.1.1",
+    "font-awesome": "^4.7.0",
+    "moment": "^2.17.1",
+    "bootstrap": "^3.3.7",
+    "lodash": "^4.17.4"
+  }
+}

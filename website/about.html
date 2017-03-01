@@ -1,0 +1,229 @@
+
+<html lang="en">
+<head>
+  <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <title>Crash Graphs Report - About</title>
+  <meta property="og:site_name" content="Firefox Crash Graphs Report" />
+
+  <link href="https://fonts.googleapis.com/css?family=PT+Sans" rel="stylesheet">
+  <link href='https://fonts.googleapis.com/css?family=PT+Serif:400,700,400italic' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Old+Standard+TT:400,400italic,700' rel='stylesheet' type='text/css'>
+
+  <!-- bower stylesheets -->
+  <!-- <link href="bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+  <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="bower_components/metrics-graphics/dist/metricsgraphics.css" rel="stylesheet"> -->
+  <!-- <link href="bower_components/mg-line-brushing/dist/mg_line_brushing.css" rel="stylesheet"> -->
+
+  <!-- CDN stylesheets -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/metrics-graphics/2.11.0/metricsgraphics.min.css" rel="stylesheet">
+<!-- <link href="bower_components/mg-line-brushing/dist/mg_line_brushing.css" rel="stylesheet"> -->
+
+  <!-- custom stylesheets -->
+  <link href="css/metricsgraphics-dark.css" rel="stylesheet" type="text/css" id="dark">
+  <link href="css/games.css" rel="stylesheet" type="text/css">
+
+  <!-- bower javascript -->
+  <!-- <script src="bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="bower_components/jquery-ui/jquery-ui.min.js"></script>
+  <script src="bower_components/d3/d3.min.js"></script>
+  <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script src="bower_components/moment/min/moment.min.js"></script>
+  <script src="bower_components/metrics-graphics/dist/metricsgraphics.min.js"></script> -->
+  <!-- <script src="bower_components/mg-line-brushing/dist/mg_line_brushing.js"></script> -->
+
+  <!-- CDN javascript -->
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+  <script src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.5.0/d3.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/metrics-graphics/2.11.0/metricsgraphics.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+
+  <!-- MathJax -->
+  <script src='https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+  </script>
+  <script type="text/javascript" async
+    src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
+  </script>
+</head>
+<body>
+  <header class="header navbar-fixed-top">
+    <div class="container">
+      <a href="index.html" role="button" class="btn btn-default btn-home">
+        <i class="fa fa-home" aria-hidden="true"></i>
+      </a>
+    </div>
+  </header>
+
+  <div class='container container-charts'>
+    <div class='row'>
+      <div class='col-lg-12'>
+        <h1 class='text-center'>About/Methodology</h1>
+      </div>
+    </div>
+
+    <div class='row hor-line'></div>
+
+    <div class='row'>
+      <div class='col-lg-12 about-prose'>
+        <h3><font color='white'>Variable Definitions</font></h3>
+        <ul>
+          <li><kbd>crash_rate_main</kbd>: crashes experienced due to a <b>browser crash</b> (full crash) per user per thousand hours.
+          <br>(note: we use <i><a href="https://github.com/mozilla/telemetry-batch-view/blob/master/src/main/scala/com/mozilla/telemetry/views/MainSummaryView.scala#L666" target="_blank">crash_submit_success_main</a></i>)</li>
+          <li><kbd>crash_rate_content</kbd>: crashes experienced due to a <b>content crash</b> (tab crash) per user per thousand hours.
+          <br>(note: we use <i><a href="https://github.com/mozilla/telemetry-batch-view/blob/master/src/main/scala/com/mozilla/telemetry/views/MainSummaryView.scala#L661" target="_blank">crashes_detected_content</a></i>)</li>
+          <li><kbd>crash_rate_plugin</kbd>: crashes experienced due to a <b>plugin</b> per user per thousand hours.
+          <br>(note: we sum <i><a href="https://github.com/mozilla/telemetry-batch-view/blob/master/src/main/scala/com/mozilla/telemetry/views/MainSummaryView.scala#L660" target="_blank">crashes_detected_plugin</a></i> and <i><a href="https://github.com/mozilla/telemetry-batch-view/blob/master/src/main/scala/com/mozilla/telemetry/views/MainSummaryView.scala#L662" target="_blank">crashes_detected_gmplugin</a></i> as a single type of plugin crash)</li>
+          <li><kbd>weekly_active_users</kbd>: number of users active in the week ending on the provided date.</li>
+          <li><kbd>wau_crashes</kbd>: out of all weekly active users, how many experienced a crash that week?</li>
+          <li><kbd>multiple_crashes</kbd>: out of all users that crashed during the week, how many have had a prior crash in their history?</li>
+          <li><kbd>first_time_crashes</kbd>: out of all users that crashed during the week, for how many was it their first crash?</li>
+          <li><kbd>median_hours/days_between_crashes</kbd>: median number of active hours/days between the two most recent crashes for users who have had multiple crashes.</li>
+          <li><kbd>geom_mean_hours/days_between_crashes</kbd>: geometric mean of active hours/days between the two most recent crashes for users who have had multiple crashes.</li>
+          <li><kbd>e10s_enabled/disabled</kbd>: out of all weekly active users that crashed, how many had e10s enabled/disabled?</li>
+          <li><kbd>main/content/plugin_e10s_enabled/disabled</kbd>: main/content/plugin crash rates as above, for profiles that had e10s enabled or disabled for that week.</li>
+          <li><kbd>new_profiles</kbd>: out of all weekly active users, how many created their profile that week?</li>
+          <li><kbd>percentage_new_crashes</kbd>: out of all the new profiles created that week, how many experienced a crash?</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class='row hor-line'></div>
+
+    <div class='row'>
+      <div class='col-lg-12 about-prose'>
+        <h3><font color='white'>Date Ranges</font></h3>
+        <p>Calculations are made for periods of seven (7) days ending on the day shown on the graphs (which are Mondays, Wednesdays, and Fridays). Example: if the graph shows "Jan 17", then the metrics were measured during the week of "Jan 10 - Jan 17".</p>
+      </div>
+    </div>
+
+      <div class='row hor-line'></div>
+
+    <div class='row'>
+      <div class='col-lg-12 about-prose'>
+        <h3><font color='white'>Weekly Active Users</font></h3>
+        <p>Weekly active users are measured as the total number of distinct profiles that were active at least once in the week from a representative 1% sample of the <kbd>main summary</kbd> dataset (<a href="https://github.com/mozilla/telemetry-batch-view/blob/master/src/main/scala/com/mozilla/telemetry/views/MainSummaryView.scala" target="_blank">schema definition</a>). Activity is measured using <kbd>submission date</kbd> instead of <kbd>subsession start date</kbd>. This allows for the numbers to stay constant independently of when the script is run. I.e., running the experiment for the week ending on day $X$ on day $Y$ or $Y+k$ will give the same results ($Y > X, k > 0$).</p>
+      </div>
+    </div>
+
+      <div class='row hor-line'></div>
+
+    <div class='row'>
+      <div class='col-lg-12 about-prose'>
+        <h3><font color='white'>Data Aggregation</font></h3>
+        <p>Data has been aggregated by user and by day of activity, so for each $(user,\ day)$ tuple, we have the sum of subsession lengths, and the sum of each type of crash. For each user that crashed during the week, we find the most recent date when a crash occurred. We then evaluate whether one or more crashes were recorded for that user on that day (so the sum of all three crash types for that user on that day).</p>
+          <ul>
+          <li>If this total is more than 1 (through any combination of the three crash types), then that user is said to have had multiple crashes, and the number of days between the two most recents crashes is 0. Since the data has been aggregated by day, this is the highest resolution we can get for this metric, so the number of hours between crashes is also set to 0.</li>
+          <li>If this total is exactly 1 (i.e., the user experienced only one crash of any kind on that day), then we look in their previous available history for another day where a crash was recorded.</li>
+            <ul>
+            <li>If one such day is found, then the user is said to have had multiple crashes, and we measure the time between them. This way, we can get the number of days between crashes and the number of hours between crashes (this is the sum of subsession lengths for days between the two most recent crash dates).</li>
+            <li>If no such day is found, then the user has no previous recorded crashes, and is said to be a first-time crash. For these users, we cannot compute time between crashes. However, this count could be correlated to the number of new profiles created that week and needs to be investigated further.</li>
+            </ul>
+          </ul>
+      </div>
+    </div>
+
+      <div class='row hor-line'></div>
+
+    <div class='row'>
+      <div class='col-lg-12 about-prose'>
+        <h3><font color='white'>Crash Rates</font></h3>
+        <p>Crash rates are calculated as the average of the total number of crashes (of each type) divided by the total sum of subsession lengths for each user (i.e., $avg(\frac{\sum_{users}{crash\_type}}{\sum_{users}{subsession\_length}})$). These rates are then multiplied by $1,000$ to get crash statistics per $1,000$ hours, per user. This calculation method allows for each user to have the same contribution to the crash rates, independent of how long they were active for.</p>
+      </div>
+    </div>
+
+      <div class='row hor-line'></div>
+
+    <div class='row'>
+      <div class='col-lg-12 about-prose'>
+        <h3><font color='white'>e10s</font></h3>
+        <p>e10s refers to <a href="https://wiki.mozilla.org/Electrolysis" target="_blank">Electrolysis</a>. Profiles that have this option enabled gain, among others, the ability to host, render, or execute web related content in background child processes. In other words, tabs can function as independent entities. Therefore, it has a direct impact on content crashes, as tabs can crash independently of the whole browser crashing. On the release channel, e10s was enabled by default starting on Firefox v48, which was released on August 1st 2016 (<a href="https://wiki.mozilla.org/Electrolysis#Schedule" target="_blank">schedule</a>). Previous to that, e10s could be enabled manually by activating the option in the settings. Rate of adoption can be seen in <a href="index.html#e10s">this graph</a> for active users that crashed per week. Main, content, and plugin crash rates for each group of users (whether they have e10s enabled or disabled) are shown in <a href="index.html#crash-rates-e10s">this graph</a>.</p>
+        <p>Note: you may notice that the sum of the two groups in the graph depicting <a href="index.html#e10s">rate of e10s adoption</a> is usually slightly above $100\%$. This is due to the fact that some users may enable and/or disable e10s within the week, and so would be counted in both groups independently. This is ok, since their browser experience (and crash rates) would theoretically be different in each status.</p>
+      </div>
+    </div>
+
+      <div class='row hor-line'></div>
+
+    <div class='row'>
+      <div class='col-lg-12 about-prose'>
+        <h3><font color='white'>New Users</font></h3>
+        <p>New users are defined as those whose profile creation date lies within the week of interest. For example, if we are looking at the week ending on Jan 17, then new users are such that their profile was created between Jan 10 and Jan 17 (and they were active in that period). This definition can be tweaked if necessary.</p>
+      </div>
+    </div>
+
+      <div class='row hor-line'></div>
+
+    <div class='row'>
+      <div class='col-lg-12 about-prose'>
+        <h3><font color='white'>Histograms</font></h3>
+        <p>The histograms of days/hours between crashes are heavily skewed towards lower values. Taking the median of these counts to create time-series plots may not be the most accurate representation of such distributions. Therefore, we also plot the geometric mean using log-transformed values (i.e., $exp(avg(log(x+1)))-1$, where we add 1 to the log since we have to deal with zeroes. The extra 1 is then removed from the calculated mean) to correct for this skewness. This should be a better and more accurate metric for these variables. In general, these two metrics behave similarly.</p>
+      </div>
+    </div>
+
+      <div class='row hor-line'></div>
+
+    <div class='row'>
+      <div class='col-lg-12'>
+        <h3><font color='white'>The Team</font></h3>
+        <div class='row text-center team'>
+          <div class='col-sm-4'>
+            <div class='profile-photo'>
+              <a href='https://mozillians.org/u/sguha/'>
+                <img src='images/sguha.jpeg' alt='Saptarshi Guha' title='Saptarshi Guha' />
+              </a>
+            </div>
+            <b>Saptarshi Guha</b><br />
+            Senior Data/Applied Statistics Scientist<br />
+            <a href='https://github.com/saptarshiguha' target="_blank">@saptarshiguha</a>
+          </div>
+
+          <div class='col-sm-4'>
+            <div class='profile-photo'>
+              <a href='https://mozillians.org/u/aduarte/'>
+                <img src='images/aduarte.jpeg' alt='Andre Duarte' title='Andre Duarte' />
+              </a>
+            </div>
+            <b>Andre Duarte</b><br />
+            Data Analytics<br />
+            <a href='https://github.com/aguimaraesduarte' target="_blank">@aguimaraesduarte</a>
+          </div>
+
+          <div class='col-sm-4'>
+            <div class='profile-photo'>
+              <a href='https://mozillians.org/u/cameres/'>
+                <img src='images/cameres.jpeg' alt='Connor Ameres' title='Connor Ameres' />
+              </a>
+            </div>
+            <b>Connor Ameres</b><br />
+            Data Analytics<br />
+            <a href='https://github.com/cameres' target="_blank">@cameres</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class='container text-center'>
+    <div class='credits'>
+      <a href='https://mozilla.org'>
+        <img src='images/mozilla.png' alt='Mozilla' title='Mozilla'>
+      </a>
+      <p class='legal'>
+        <a href='https://www.mozilla.org/privacy/websites'>Privacy</a> &nbsp;
+        <a href='https://www.mozilla.org/about/legal/terms/mozilla'>Legal</a> &nbsp;
+        <a href='https://www.mozilla.org/en-US/privacy/websites/#cookies'>Cookies</a>
+      </p>
+    </div>
+  </div>
+
+  <script src='js/utils.js'></script>
+  <script src='js/main.js'></script>
+</body>
+</html>

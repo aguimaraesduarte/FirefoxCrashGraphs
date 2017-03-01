@@ -1,0 +1,246 @@
+
+<html lang="en">
+<head>
+  <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <title>Crash Graphs Report</title>
+  <meta property="og:site_name" content="Firefox Crash Graphs Report" />
+
+  <link href="https://fonts.googleapis.com/css?family=PT+Sans" rel="stylesheet">
+  <link href='https://fonts.googleapis.com/css?family=PT+Serif:400,700,400italic' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Old+Standard+TT:400,400italic,700' rel='stylesheet' type='text/css'>
+
+  <!-- bower stylesheets -->
+  <!-- <link href="bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+  <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="bower_components/metrics-graphics/dist/metricsgraphics.css" rel="stylesheet"> -->
+  <!-- <link href="bower_components/mg-line-brushing/dist/mg_line_brushing.css" rel="stylesheet"> -->
+
+  <!-- CDN stylesheets -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/metrics-graphics/2.11.0/metricsgraphics.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css" rel="stylesheet">
+  <link href="https://rawgit.com/cameres/mg-select/v0.1/mg-select.css" rel="stylesheet">
+<!-- <link href="bower_components/mg-line-brushing/dist/mg_line_brushing.css" rel="stylesheet"> -->
+
+  <!-- custom stylesheets -->
+  <link href="css/metricsgraphics-dark.css" rel="stylesheet" type="text/css" id="dark">
+  <link href="css/games.css" rel="stylesheet" type="text/css">
+
+  <!-- bower javascript -->
+  <!-- <script src="bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="bower_components/jquery-ui/jquery-ui.min.js"></script>
+  <script src="bower_components/d3/d3.min.js"></script>
+  <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script src="bower_components/moment/min/moment.min.js"></script>
+  <script src="bower_components/metrics-graphics/dist/metricsgraphics.min.js"></script> -->
+  <!-- <script src="bower_components/mg-line-brushing/dist/mg_line_brushing.js"></script> -->
+
+  <!-- CDN javascript -->
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+  <script src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.5.0/d3.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/metrics-graphics/2.11.0/metricsgraphics.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/js/bootstrap-select.min.js"></script>
+  <script src="https://rawgit.com/cameres/mg-select/v0.1/mg-select.js"></script>
+</head>
+<body>
+  <header class="header navbar-fixed-top">
+    <div class="container">
+      <div class="dropdown links">
+        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+          <i class="fa fa-bars" aria-hidden="true"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
+          <li><a href="about.html">About</a></li>
+          <li><a data-toggle="modal" data-target="#definitions" href="">Variable Definitions</a></li>
+        </ul>
+      </div>
+    </div>
+  </header>
+  <div class='container container-charts'>
+    <div class='row'>
+      <div class='col-lg-12 subtitle-prose'>
+        <h1 class='text-center'>Crash Graphs Report</h1>
+        <p>Firefox Crash Graphs is a tri-weekly (M, W, F) report of crash analysis on a representative 1% sample of the population from Firefox's release channel on desktop. Main, content, and plugin crashes are collected and analyzed for this sample of the population and provide an accurate representation of the state of Firefox experience for desktop users. In providing this representation, developers will be able to investigate the user experience of Firefox crashes.</p>
+        <p>To learn more about this report, read our <a href='' target="_blank">blog post</a> (coming). The website's code is <a href='' target="_blank">avaiable on github</a> (coming).</p>
+
+        <div class='row hor-line'></div>
+
+        <h3><font color='white'>Links to Charts</font></h3>
+        <ul>
+          <li><a href="#crash-rates">Crash Rates</a></li>
+          <li><a href="#e10s">Percentage of e10s Adoption</a></li>
+          <li><a href="#crash-rates-e10s">Crash Rates (e10s)</a></li>
+          <li><a href="#percentage-crashed">Percentage of Weekly Active Users that Crashed</a></li>
+          <li><a href="#first-crashes">Percentage of First Crashes Recorded</a></li>
+          <li><a href="#new-profiles">Percentage of Weekly Active Users that are New</a></li>
+          <li><a href="#percentage-new-crashed">Percentage of New Profiles that Crashed</a></li>
+          <li><a href="#hours_between_crashes">Hours Between Crashes</a></li>
+          <li><a href="#days_between_crashes">Days Between Crashes</a></li>
+          <li><a href="#histograms">Histogram of Lengths Between Crashes</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class='row hor-line'></div>
+
+    <div class='row'>
+      <div class='col-lg-8 text-center'>
+        <div class="btn-group btn-group-sm text-center split-by-controls" data-toggle="tooltip" data-placement="top" title="Toggle markers for three categories of Firefox releases">
+          <button type="button" class="btn btn-default active" data-category="major">Major</button>
+          <button type="button" class="btn btn-default" data-category="stability">Stability</button>
+          <button type="button" class="btn btn-default" data-category="dev">Developer</button>
+        </div>
+      </div>
+    </div>
+
+    <div class='row graphics chart'>
+      <div class='col-lg-8 text-center graphic' id='crash-rates'></div>
+      <div class='col-lg-4 detail-prose'><p>Content crashes have been steadily increasing since September 2016. We recommend this metric be monitored and maybe revised. Plugin crashes have oscillated around a fairly constant value, and main crashes have remained low and slightly decreasing until now. The adoption of electrolysis is a possible explaining factor to the increase of content crashes.</p>
+      </div>
+    </div>
+
+    <div class='row hor-line'></div>
+
+    <div class='row graphics chart'>
+
+      <div class='col-lg-8 text-center graphic' id='e10s'></div>
+      <div class='col-lg-4 detail-prose'><p>Adoption of e10s has increased considerably since September 2016, with over 80% of users who crashed in the week having this options enabled.</p></div>
+    </div>
+
+    <div class='row graphics chart'>
+      <div class='col-lg-8 text-center graphic' id='crash-rates-e10s'></div>
+      <div class='col-lg-4 detail-prose'>
+      <div class="btn-group btn-group-sm text-center split-by-crash" data-toggle="tooltip" data-placement="top" title="Select crash type to compare">
+          <button type="button" class="btn btn-default" data-category="main">Main</button>
+          <button type="button" class="btn btn-default active" data-category="content">Content</button>
+          <button type="button" class="btn btn-default" data-category="plugin">Plugin</button>
+        </div>
+      <p>Content crashes for profiles that have e10s enabled are significantly higher (almost 20x) than for those that don't have it enabled, while plugin and main crash rates are similar for both groups. The increase in content crashes may lead to a bad user experience.</p>
+      </div>
+    </div>
+
+    <div class='row hor-line'></div>
+
+    <div class='row graphics chart'>
+      <div class='col-lg-8 text-center graphic' id='percentage-crashed'></div>
+      <div class='col-lg-4 detail-prose'><p>The percentage of users that crashed per week has been increasing slowly over time. In general, around 8-12% of weekly active Firefox users have experienced any type of crash.</p></div>
+    </div>
+
+    <div class='row graphics chart'>
+      <div class='col-lg-8 text-center graphic' id='first-crashes'></div>
+      <div class='col-lg-4 detail-prose'><p>The proportion of users who have experienced their first recorded crash during the week of analysis is around 10%. This also appears to be increasing. Approximately 85-90% of users who crash per week have a previous recorded crash in their history.</p></div>
+    </div>
+
+    <div class='row hor-line'></div>
+
+    <div class='row graphics chart'>
+      <div class='col-lg-8 text-center graphic' id='new-profiles'></div>
+      <div class='col-lg-4 detail-prose'><p>Around 4-5% of weekly active users are new (i.e., their profile was created in the same week). This definition of "new" may be tweaked, but we can see that it has remained fairly constant since September 2016.</p></div>
+    </div>
+
+    <div class='row graphics chart'>
+      <div class='col-lg-8 text-center graphic' id='percentage-new-crashed'></div>
+      <div class='col-lg-4 detail-prose'><p>The number of new profiles (created that week) that crashed is increasing. This may be correlated to new profiles having e10s enabled by default, so more content crashes are recorded. It is recommended to monitor this data in order to evaluate the new user experience.</p></div>
+    </div>
+
+    <div class='row hor-line'></div>
+
+    <div class='row graphics chart'>
+      <div class='col-lg-8 text-center graphic' id='hours_between_crashes'></div>
+      <div class='col-lg-4 detail-prose'><p>The number of hours between crashes for users who have had a previous crash in their history is decreasing. This means that crashes (of any type) are becoming more frequent in general. It seems that the trend is increasing toward the end of January. We will need to see if v51 of Firefox has impoved stability for users.</p></div>
+    </div>
+
+    <div class='row graphics chart'>
+      <div class='col-lg-8 text-center graphic' id='days_between_crashes'></div>
+      <div class='col-lg-4 detail-prose'><p>Similarly to the graph above, the median number of days between crashes is also decreasing fairly regularly. Over 50% of Firefox users who crash per week have had their previous crash within 7 days.</p></div>
+    </div>
+
+<!--     <div class='row graphics chart'>
+      <div class='col-lg-8 text-center graphic' id='last_crashes'></div>
+      <div class='col-lg-4 detail-prose'><p>Variation of last crash types. Includes all users who crashes, multiple crashers, and first timers.</p></div>
+    </div> -->
+
+    <div class='row hor-line'></div>
+
+    <div id="histograms"/>
+      <div class='row'>
+        <div class='col-lg-12'>
+          <h2 class='text-center'>Histogram of Lengths Between Crashes</h2>
+          <p>This section contains weekly histograms of the time between crashes for users who crashed that week and have had a previous recorded crash in their history. The distribution of days between crashes and hours of activity between crashes are both available. While the time-series graphs of point summaries of these two metrics are shown above, the full distributions of a snapshot of a week may provide additional insights on Firefox usage and crash patterns.</p>
+          <p>Further investigation is necessary to assess whether the high number of users with multiple crashes on the same day is correlated to more recent profile creation dates.</p>
+        </div>
+      </div>
+
+      <div class='row hero-controls-bar'>
+        <div class='col-lg-8 text-center date-hero' data-toggle="tooltip" data-placement="bottom" title="date of analysis can be adjusted with the arrow bars above!">
+          <div>
+            <a class='hero-left'>&#x276E;</a>
+            <span class='formatted-date'></span>
+            <a class='hero-right'>&#x276F;</a>
+          </div>
+        </div>
+      </div>
+
+      <div class='row graphics chart'>
+        <div class='col-lg-8 text-center graphic' id='fx_crashgraphs_days'></div>
+        <div class='col-lg-4 detail-prose'><p>There is a large number of users that experienced multiple crashes on their most recent crash date (0 days between crashes). This could possibly correlate with profile creation date and should be investigated further. In addition, light 'bumps' can be observed lag 7 days (i.e., at 7, 14, 21 days between crashes). This also should be invertigated further. The histogram is clipped to 30 days.</p></div>
+      </div>
+
+      <div class='row graphics chart'>
+        <div class='col-lg-8 text-center graphic' id='fx_crashgraphs_hours'></div>
+        <div class='col-lg-4 detail-prose'><p>Similarly to the graph above and due to how the data is aggregated, the histogram is heavily skewed toward 0 hours of activity between crashes. A slight bump can be observed at 24h between crashes. The histogram is clipped to 30 hours.</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="modal fade" id="definitions" tabindex="-1" role="dialog" aria-labelledby="definitions" aria-hidden="true">
+    <div class="vertical-alignment-helper">
+      <div class="modal-dialog vertical-align-center" role="document">
+        <div class="modal-content">
+          <div class="modal-body">
+            <ul>
+              <li><kbd>crash_rate_main</kbd>: crashes experienced due to a <b>browser crash</b> (full crash) per user per thousand hours.
+              <br>(note: we use <i><a href="https://github.com/mozilla/telemetry-batch-view/blob/master/src/main/scala/com/mozilla/telemetry/views/MainSummaryView.scala#L666" target="_blank">crash_submit_success_main</a></i>)</li>
+              <li><kbd>crash_rate_content</kbd>: crashes experienced due to a <b>content crash</b> (tab crash) per user per thousand hours.
+              <br>(note: we use <i><a href="https://github.com/mozilla/telemetry-batch-view/blob/master/src/main/scala/com/mozilla/telemetry/views/MainSummaryView.scala#L661" target="_blank">crashes_detected_content</a></i>)</li>
+              <li><kbd>crash_rate_plugin</kbd>: crashes experienced due to a <b>plugin</b> per user per thousand hours.
+              <br>(note: we sum <i><a href="https://github.com/mozilla/telemetry-batch-view/blob/master/src/main/scala/com/mozilla/telemetry/views/MainSummaryView.scala#L660" target="_blank">crashes_detected_plugin</a></i> and <i><a href="https://github.com/mozilla/telemetry-batch-view/blob/master/src/main/scala/com/mozilla/telemetry/views/MainSummaryView.scala#L662" target="_blank">crashes_detected_gmplugin</a></i> as a single type of plugin crash)</li>
+              <li><kbd>weekly_active_users</kbd>: number of users active in the week ending on the provided date.</li>
+              <li><kbd>wau_crashes</kbd>: out of all weekly active users, how many experienced a crash that week?</li>
+              <li><kbd>multiple_crashes</kbd>: out of all users that crashed during the week, how many have had a prior crash in their history?</li>
+              <li><kbd>first_time_crashes</kbd>: out of all users that crashed during the week, for how many was it their first crash?</li>
+              <li><kbd>median_hours/days_between_crashes</kbd>: median number of active hours/days between the two most recent crashes for users who have had multiple crashes.</li>
+              <li><kbd>geom_mean_hours/days_between_crashes</kbd>: geometric mean of active hours/days between the two most recent crashes for users who have had multiple crashes.</li>
+              <li><kbd>e10s_enabled/disabled</kbd>: out of all weekly active users that crashed, how many had e10s enabled/disabled?</li>
+              <li><kbd>main/content/plugin_e10s_enabled/disabled</kbd>: main/content/plugin crash rates as above, for profiles that had e10s enabled or disabled for that week.</li>
+              <li><kbd>new_profiles</kbd>: out of all weekly active users, how many created their profile that week?</li>
+              <li><kbd>percentage_new_crashes</kbd>: out of all the new profiles created that week, how many experienced a crash?</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class='container text-center'>
+    <div class='credits'>
+      <a href='https://mozilla.org'>
+        <img src='images/mozilla.png' alt='Mozilla' title='Mozilla'>
+      </a>
+      <p class='legal'>
+        <a href='https://www.mozilla.org/privacy/websites'>Privacy</a> &nbsp;
+        <a href='https://www.mozilla.org/about/legal/terms/mozilla'>Legal</a> &nbsp;
+        <a href='https://www.mozilla.org/en-US/privacy/websites/#cookies'>Cookies</a>
+      </p>
+    </div>
+  </div>
+
+  <script src='js/utils.js'></script>
+  <script src='js/main.js'></script>
+</body>
+</html>
