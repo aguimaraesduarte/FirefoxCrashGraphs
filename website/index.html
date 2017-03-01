@@ -81,7 +81,7 @@
           <li><a href="#new-profiles">Percentage of Weekly Active Users that are New</a></li>
           <li><a href="#percentage-new-crashed">Percentage of New Profiles that Crashed</a></li>
           <li><a href="#hours_between_crashes">Hours Between Crashes</a></li>
-          <li><a href="#days_between_crashes">Days Between Crashes</a></li>
+          <!-- <li><a href="#days_between_crashes">Days Between Crashes</a></li> -->
           <li><a href="#histograms">Histogram of Lengths Between Crashes</a></li>
         </ul>
       </div>
@@ -156,10 +156,10 @@
       <div class='col-lg-4 detail-prose'><p>The number of hours between crashes for users who have had a previous crash in their history is decreasing. This means that crashes (of any type) are becoming more frequent in general. It seems that the trend is increasing toward the end of January. We will need to see if v51 of Firefox has impoved stability for users.</p></div>
     </div>
 
-    <div class='row graphics chart'>
+<!--     <div class='row graphics chart'>
       <div class='col-lg-8 text-center graphic' id='days_between_crashes'></div>
       <div class='col-lg-4 detail-prose'><p>Similarly to the graph above, the median number of days between crashes is also decreasing fairly regularly. Over 50% of Firefox users who crash per week have had their previous crash within 7 days.</p></div>
-    </div>
+    </div> -->
 
 <!--     <div class='row graphics chart'>
       <div class='col-lg-8 text-center graphic' id='last_crashes'></div>
@@ -214,8 +214,8 @@
               <li><kbd>wau_crashes</kbd>: out of all weekly active users, how many experienced a crash that week?</li>
               <li><kbd>multiple_crashes</kbd>: out of all users that crashed during the week, how many have had a prior crash in their history?</li>
               <li><kbd>first_time_crashes</kbd>: out of all users that crashed during the week, for how many was it their first crash?</li>
-              <li><kbd>median_hours/days_between_crashes</kbd>: median number of active hours/days between the two most recent crashes for users who have had multiple crashes.</li>
-              <li><kbd>geom_mean_hours/days_between_crashes</kbd>: geometric mean of active hours/days between the two most recent crashes for users who have had multiple crashes.</li>
+              <li><kbd>median_hours_between_crashes</kbd>: median number of active hours between the two most recent crashes for users who have had multiple crashes.</li>
+              <li><kbd>geom_mean_hours_between_crashes</kbd>: geometric mean of active hours between the two most recent crashes for users who have had multiple crashes.</li>
               <li><kbd>e10s_enabled/disabled</kbd>: out of all weekly active users that crashed, how many had e10s enabled/disabled?</li>
               <li><kbd>main/content/plugin_e10s_enabled/disabled</kbd>: main/content/plugin crash rates as above, for profiles that had e10s enabled or disabled for that week.</li>
               <li><kbd>new_profiles</kbd>: out of all weekly active users, how many created their profile that week?</li>

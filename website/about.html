@@ -85,8 +85,8 @@
           <li><kbd>wau_crashes</kbd>: out of all weekly active users, how many experienced a crash that week?</li>
           <li><kbd>multiple_crashes</kbd>: out of all users that crashed during the week, how many have had a prior crash in their history?</li>
           <li><kbd>first_time_crashes</kbd>: out of all users that crashed during the week, for how many was it their first crash?</li>
-          <li><kbd>median_hours/days_between_crashes</kbd>: median number of active hours/days between the two most recent crashes for users who have had multiple crashes.</li>
-          <li><kbd>geom_mean_hours/days_between_crashes</kbd>: geometric mean of active hours/days between the two most recent crashes for users who have had multiple crashes.</li>
+          <li><kbd>median_hours_between_crashes</kbd>: median number of active hours between the two most recent crashes for users who have had multiple crashes.</li>
+          <li><kbd>geom_mean_hours_between_crashes</kbd>: geometric mean of active hours between the two most recent crashes for users who have had multiple crashes.</li>
           <li><kbd>e10s_enabled/disabled</kbd>: out of all weekly active users that crashed, how many had e10s enabled/disabled?</li>
           <li><kbd>main/content/plugin_e10s_enabled/disabled</kbd>: main/content/plugin crash rates as above, for profiles that had e10s enabled or disabled for that week.</li>
           <li><kbd>new_profiles</kbd>: out of all weekly active users, how many created their profile that week?</li>
@@ -163,7 +163,7 @@
     <div class='row'>
       <div class='col-lg-12 about-prose'>
         <h3><font color='white'>Histograms</font></h3>
-        <p>The histograms of days/hours between crashes are heavily skewed towards lower values. Taking the median of these counts to create time-series plots may not be the most accurate representation of such distributions. Therefore, we also plot the geometric mean using log-transformed values (i.e., $exp(avg(log(x+1)))-1$, where we add 1 to the log since we have to deal with zeroes. The extra 1 is then removed from the calculated mean) to correct for this skewness. This should be a better and more accurate metric for these variables. In general, these two metrics behave similarly.</p>
+        <p>The histograms of hours between crashes are heavily skewed towards lower values. Taking the median of these counts to create time-series plots may not be the most accurate representation of such distributions. Therefore, we also plot the geometric mean using log-transformed values (i.e., $exp(avg(log(x+1)))-1$, where we add 1 to the log since we have to deal with zeroes. The extra 1 is then removed from the calculated mean) to correct for this skewness. This should be a better and more accurate metric for these variables. In general, these two metrics behave similarly.</p>
       </div>
     </div>
 

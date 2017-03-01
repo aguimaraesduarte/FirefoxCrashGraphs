@@ -178,14 +178,14 @@ d3.queue()
       description: '<ul><li><kbd>median_hours_between_crashes</kbd>: median number of active hours between the two most recent crashes for users who have had multiple crashes.</li>\
       <li><kbd>geom_mean_hours_between_crashes</kbd>: geometric mean of active hours between the two most recent crashes for users who have had multiple crashes.</li></ul>'
     },
-    {
-      title: "Days Between Crashes",
-      target: "#days_between_crashes",
-      y_accessor: ["median_days_between_crashes", "geom_days_between_crashes"],
-      legend: ["median_days_between_crashes", "geom_mean_days_between_crashes"],
-      description: '<ul><li><kbd>median_days_between_crashes</kbd>: median number of days between the two most recent crashes for users who have had multiple crashes.</li>\
-      <li><kbd>geom_mean_days_between_crashes</kbd>: geometric mean of days between the two most recent crashes for users who have had multiple crashes.</li></ul>'
-    }
+    // {
+    //   title: "Days Between Crashes",
+    //   target: "#days_between_crashes",
+    //   y_accessor: ["median_days_between_crashes", "geom_days_between_crashes"],
+    //   legend: ["median_days_between_crashes", "geom_mean_days_between_crashes"],
+    //   description: '<ul><li><kbd>median_days_between_crashes</kbd>: median number of days between the two most recent crashes for users who have had multiple crashes.</li>\
+    //   <li><kbd>geom_mean_days_between_crashes</kbd>: geometric mean of days between the two most recent crashes for users who have had multiple crashes.</li></ul>'
+    // }
   ]
 
   // store common properties to be

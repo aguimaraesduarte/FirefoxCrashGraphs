@@ -16,7 +16,7 @@ $ http-server .
 
 # Running the files
 In order to run the crash graphs analysis, the first step is SCP'ing previous json files to the cluster (in the same directory as the python files). These are in the format `fx_crashgraphs-YYYYMMDD-YYYYMMDD.json` and available from S3.
-Once all the json files are available on the cluster, analysis is run using the command `spark-submit main.py --py-files *.py`.
+Once all the json files are available on the cluster, analysis is run using the command `spark-submit main.py --py-files *.py`. (You may need to run `unset PYSPARK_DRIVER_PYTHON` first.)
 The job will read data from main_summary, calculate all the metrics, and save them to three json files:
 
 - `fx_crashgraphs-YYYYMMDD-YYYYMMDD.json`: a summary of metrics for the given week;
