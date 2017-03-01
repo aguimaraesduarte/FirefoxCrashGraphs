@@ -17,15 +17,14 @@ $ http-server .
 # Running the files
 In order to run the crash graphs analysis, the first step is SCP'ing previous json files to the cluster (in the same directory as the python files). These are in the format `fx_crashgraphs-YYYYMMDD-YYYYMMDD.json` and available from S3.
 Once all the json files are available on the cluster, analysis is run using the command `spark-submit main.py --py-files *.py`. (You may need to run `unset PYSPARK_DRIVER_PYTHON` first.)
-The job will read data from main_summary, calculate all the metrics, and save them to three json files:
+The job will read data from main_summary, calculate all the metrics, and save them to two json files:
 
 - `fx_crashgraphs-YYYYMMDD-YYYYMMDD.json`: a summary of metrics for the given week;
-- `fx_crashgraphs_days-YYYYMMDD-YYYYMMDD.json`: a counter for days between last two crashes for the given week;
 - `fx_crashgraphs_hours-YYYYMMDD-YYYYMMDD.json`: a counter for hours between last two crashes for the given week.
 
 In addition, one final json file (`fx_crashgraphs.json`) is created as an aggregated summary of all `fx_crashgraphs-YYYYMMDD-YYYYMMDD.json` files.
 
-The main script will try to find the last week that was analyzed and run the analysis for every 7-day period ending on Monday, Wednesday, Friday between that date and when the script is being run (automatic backfilling). If no previous files are found that match the required format, the script will backfill until September 1st, 2016. In such case, `3*n+1` `.json` files are created, where `n` is the number of seven day periods to analyze within the date range. There is one of each file with the range as `YYYYMMDD-YYYYMMDD`, and one `fx_crashgraphs.json` file with an aggregated summary of metrics from all `n` `fx_crashgraphs-YYYYMMDD-YYYYMMDD.json` files.
+The main script will try to find the last week that was analyzed and run the analysis for every 7-day period ending on Monday, Wednesday, Friday between that date and when the script is being run (automatic backfilling). If no previous files are found that match the required format, the script will backfill until September 1st, 2016. In such case, `2*n+1` `.json` files are created, where `n` is the number of seven day periods to analyze within the date range. There is one of each file with the range as `YYYYMMDD-YYYYMMDD`, and one `fx_crashgraphs.json` file with an aggregated summary of metrics from all `n` `fx_crashgraphs-YYYYMMDD-YYYYMMDD.json` files.
 
 # TODO
 

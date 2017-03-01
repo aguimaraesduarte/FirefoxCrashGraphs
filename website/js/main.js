@@ -9,19 +9,15 @@ var global = {
     xax_count: 4
   },
   // used when updating the
-  // hours and days histogram
+  // hours histogram
   currentDate: null,
   charts: null,
   // all firefox releases stored
   // in metrics graphics supported
   // format
   allMarkers: null,
-  // // min and max hours & days
+  // // min and max hours
   // // for histograms
-  // days: {
-  //   min: null,
-  //   max: null
-  // },
   // hours: {
   //   min: null,
   //   max: null
@@ -29,14 +25,12 @@ var global = {
 }
 
 // partially applied functions for loading
-// json data for histograms for hours & days
+// json data for histograms for hours
 // between use
 var getHoursFilePath = getFilePath.bind(this, "hours")
-var getDaysFilePath = getFilePath.bind(this, "days")
 
 global.currentDate = previousDate(moment())
 
-var daysFile = getDaysFilePath(global.currentDate)
 var hoursFile = getHoursFilePath(global.currentDate)
 
 var firefoxReleasesPath = "https://product-details.mozilla.org/1.0/firefox.json"
@@ -177,15 +171,7 @@ d3.queue()
       legend: ["median_hours_between_crashes", "geom_mean_hours_between_crashes"],
       description: '<ul><li><kbd>median_hours_between_crashes</kbd>: median number of active hours between the two most recent crashes for users who have had multiple crashes.</li>\
       <li><kbd>geom_mean_hours_between_crashes</kbd>: geometric mean of active hours between the two most recent crashes for users who have had multiple crashes.</li></ul>'
-    },
-    // {
-    //   title: "Days Between Crashes",
-    //   target: "#days_between_crashes",
-    //   y_accessor: ["median_days_between_crashes", "geom_days_between_crashes"],
-    //   legend: ["median_days_between_crashes", "geom_mean_days_between_crashes"],
-    //   description: '<ul><li><kbd>median_days_between_crashes</kbd>: median number of days between the two most recent crashes for users who have had multiple crashes.</li>\
-    //   <li><kbd>geom_mean_days_between_crashes</kbd>: geometric mean of days between the two most recent crashes for users who have had multiple crashes.</li></ul>'
-    // }
+    }
   ]
 
   // store common properties to be
@@ -222,25 +208,23 @@ d3.queue()
   .on('click', function(){
     global.currentDate = previousDate(global.currentDate);
 
-    var daysFile = getDaysFilePath(global.currentDate);
     var hoursFile = getHoursFilePath(global.currentDate);
 
-    updateDaysAndHours(daysFile, hoursFile);
+    updateHours(hoursFile);
   });
 
   d3.select('.hero-right')
   .on('click', function(){
     global.currentDate = nextDate(global.currentDate);
 
-    var daysFile = getDaysFilePath(global.currentDate);
     var hoursFile = getHoursFilePath(global.currentDate);
 
-    updateDaysAndHours(daysFile, hoursFile);
+    updateHours(hoursFile);
   });
 })
 
-// initial draw of days & hours histograms
-updateDaysAndHours(daysFile, hoursFile)
+// initial draw of hours histograms
+updateHours(hoursFile)
 
 // called if there is no json for the
 // corresponding address created
@@ -260,11 +244,11 @@ function createMissingDataChart(target){
   });
 }
 
-function updateDaysAndHours(daysFile, hoursFile){
+function updateHours(hoursFile){
   // TODO: Histograms don't have commonChartProperties
   // like the other charts did. This could be updated,
   // however it is low priority.
-  var dates = daysFile.replace(".json", "")
+  var dates = hoursFile.replace(".json", "")
     .split("-")
     .slice(1, 3)
 
@@ -275,41 +259,8 @@ function updateDaysAndHours(daysFile, hoursFile){
   d3.select(".formatted-date").text(dateStr)
 
   d3.queue()
-  .defer(d3.json, daysFile)
   .defer(d3.json, hoursFile)
-  .await(function(error, fx_crashgraphs_days, fx_crashgraphs_hours){
-    var target = "#fx_crashgraphs_days";
-    if(fx_crashgraphs_days){
-      // TODO: replace min & max hard coded values w/ dynamic ones?
-      // if(global.days.min == null){
-      //   global.days.min = fx_crashgraphs_days.reduce(function(a, b){
-      //     return a < b.days ? a : b.days
-      //   }, Number.MAX_VALUE)
-      //   global.days.max = fx_crashgraphs_days.reduce(function(a, b){
-      //     return a > b.days ? a : b.days
-      //   }, Number.MIN_VALUE)
-      // }
-      MG.data_graphic({
-        title: "Count of Days Between Crashes per User",
-        data: fx_crashgraphs_days,
-        width: global.chart.width,
-        height: 300,
-        xax_count: global.chart.xax_count,
-        right: global.chart.right,
-        target: target,
-        y_accessor: "count",
-        x_accessor: "days",
-        min_x: 0,
-        max_x: 30,
-        min_y: 0,
-        max_y: 35000,
-        transition_on_update: false,
-        full_width: true
-      });
-    } else {
-      createMissingDataChart(target);
-    }
-
+  .await(function(error, fx_crashgraphs_hours){
     var target = "#fx_crashgraphs_hours";
     if(fx_crashgraphs_hours){
       // if(global.hours.min == null){

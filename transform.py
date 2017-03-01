@@ -350,7 +350,6 @@ def RDD_to_pandas(mappedRDD, filter_str="", select_cols = []):
 
     crash_statistics_pd = mappedRDD.toDF(["has_multiple_crashes",
                                           "total_ssl_between_crashes",
-                                          "days_between_crashes",
                                           "has_main_crash",
                                           "has_content_crash",
                                           "has_plugin_crash",

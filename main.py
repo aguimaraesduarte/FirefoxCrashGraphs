@@ -79,7 +79,6 @@ def mapCrashes(row):
 
     has_multiple_crashes = False         # whether user has a previous crash
     total_ssl_between_crashes = None     # total subsession length between crashes
-    days_between_crashes = None          # days between crashes
 
     has_main_crash = False               # whether user has experienced a main crash
     has_content_crash = False            # whether user has experienced a content crash
@@ -121,13 +120,8 @@ def mapCrashes(row):
         s = slice(first_crash, next_crash)
         total_ssl_between_crashes = sum(sorted_row.ssl[s]) / 60. / 60 # converted to hours
 
-        first_crash_date = datetime.strptime(sorted_row.sd[first_crash], "%Y%m%d")
-        next_crash_date = datetime.strptime(sorted_row.sd[next_crash], "%Y%m%d")
-        days_between_crashes = (first_crash_date - next_crash_date).days
-
     return (has_multiple_crashes,      # True/False
             total_ssl_between_crashes, # in hours
-            days_between_crashes,      # in days
             has_main_crash,            # True/False
             has_content_crash,         # True/False
             has_plugin_crash,          # True/False
@@ -258,9 +252,7 @@ def main_alg():
 
         # get crash statistics
         print "***** SAVING CRASH DATA TO JSON...",
-        crash_statistics_pd = RDD_to_pandas(crash_statistics, "has_multiple_crashes = True", ["total_ssl_between_crashes", "days_between_crashes"])
-        write_col_json("fx_crashgraphs_days", crash_statistics_pd.days_between_crashes, "days",
-                       start_date_str, end_date_str)
+        crash_statistics_pd = RDD_to_pandas(crash_statistics, "has_multiple_crashes = True", ["total_ssl_between_crashes"])
         write_col_json("fx_crashgraphs_hours", crash_statistics_pd.total_ssl_between_crashes, "hours",
                        start_date_str, end_date_str)
         print "DONE!"
