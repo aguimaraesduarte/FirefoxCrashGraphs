@@ -71,17 +71,6 @@ d3.queue()
   // filter out all of the release canidates
   var filteredMarkers = global.allMarkers.filter(filterCategory.bind(this, "major"));
 
-  // // temporarily compute percentage of wau that crashed
-  // for(var i = 0; i < fx_crashgraphs.length; i++){
-  //   fx_crashgraphs[i].proportion_wau_crashes = (fx_crashgraphs[i].num_crashed / fx_crashgraphs[i].wau);
-  //   fx_crashgraphs[i].proportion_first_time_crashes = (fx_crashgraphs[i].num_first_time_crash / fx_crashgraphs[i].num_crashed);
-  //   fx_crashgraphs[i].proportion_multiple_crashes = (fx_crashgraphs[i].num_multiple_crash / fx_crashgraphs[i].num_crashed);
-  //   fx_crashgraphs[i].proportion_new_profiles = (fx_crashgraphs[i].num_new_profiles / fx_crashgraphs[i].wau);
-  //   fx_crashgraphs[i].proportion_new_crashes = (fx_crashgraphs[i].num_crashed_new_profiles / fx_crashgraphs[i].num_new_profiles);
-  //   fx_crashgraphs[i].proportion_e10s_enabled = (fx_crashgraphs[i].num_e10s_enabled / fx_crashgraphs[i].num_crashed);
-  //   fx_crashgraphs[i].proportion_e10s_disabled = (fx_crashgraphs[i].num_e10s_disabled / fx_crashgraphs[i].num_crashed);
-  // }
-
   fx_crashgraphs = MG.convert.date(fx_crashgraphs, "date");
 
   // custom chart properties that override
@@ -162,7 +151,9 @@ d3.queue()
     //   legend: ["prop_last_crash_main_tot", "prop_last_crash_content_tot", "prop_last_crash_plugin_tot",
     //            "prop_last_crash_main_mult", "prop_last_crash_content_mult", "prop_last_crash_plugin_mult",
     //            "prop_last_crash_main_first", "prop_last_crash_content_first", "prop_last_crash_plugin_first"],
-    //   format: "percentage"
+    //   format: "percentage",
+    //   description: '<ul><li><kbd>prop_last_crash_main/content/plugin_tot/mult/first</kbd>: out of all profiles/profiles that have multiple crashes/profiles that only ever had one crash, what is the proportion of the latest crash being main/content/crash?</li></ul>'
+    //   mg_select: true
     // },
     {
       title: "Hours Between Crashes",
@@ -203,7 +194,7 @@ d3.queue()
 
   // bind click events to the histogram
   // buttons to fetch new data & update
-  // both of the histograms
+  // histogram
   d3.select('.hero-left')
   .on('click', function(){
     global.currentDate = previousDate(global.currentDate);
@@ -223,7 +214,7 @@ d3.queue()
   });
 })
 
-// initial draw of hours histograms
+// initial draw of hours histogram
 updateHours(hoursFile)
 
 // called if there is no json for the
@@ -245,7 +236,7 @@ function createMissingDataChart(target){
 }
 
 function updateHours(hoursFile){
-  // TODO: Histograms don't have commonChartProperties
+  // TODO: Histogram doesn't have commonChartProperties
   // like the other charts did. This could be updated,
   // however it is low priority.
   var dates = hoursFile.replace(".json", "")
