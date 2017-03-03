@@ -35,7 +35,7 @@ def aggregate_by_client_date_e10s(filteredDF_str):
     GROUP BY cid, sd, e10s
     """.format(table=filteredDF_str)
 
-    aggregateDF = sqlContext.sql(query)
+    aggregateDF = sqlContext.sql(query).cache()
     return aggregateDF
 
 def get_crash_rates_by_user(aggregateDF_str, start_date_str, end_date_str):

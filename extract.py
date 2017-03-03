@@ -49,8 +49,7 @@ def read_main_summary():
                                       .filter(allPingsDFSelect.ssl <= 86400)\
                                       .filter(allPingsDFSelect.pcd >= PCD_CUTOUT_START_INT)\
                                       .filter(allPingsDFSelect.pcd <= TODAY_INT)\
-                                      .filter(allPingsDFSelect.e10s.isin(True, False))\
-                                      .cache()
+                                      .filter(allPingsDFSelect.e10s.isin(True, False))
 
     # return filtered dataframe
     return filteredPingsDF
