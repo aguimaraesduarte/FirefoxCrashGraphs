@@ -142,7 +142,7 @@ def main_alg():
             between October 1st 2016 and January 1st 2017
     """
     # setup spark
-    sc = SparkContext()
+    sc = SparkContext(appName="FirefoxCrashGraphs")
     sqlContext = SQLContext(sc)
 
     setup_load(sqlContext)
