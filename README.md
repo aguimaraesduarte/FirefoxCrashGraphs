@@ -18,8 +18,9 @@ $ http-server .
 In order to run the crash graphs analysis, the first step is SCP'ing previous json files to the cluster (in the same directory as the python files). These are in the format `fx_crashgraphs-YYYYMMDD-YYYYMMDD.json` and available from S3.
 Once all the json files are available on the cluster, analysis is run using the command
 
-```
+```bash
 unset PYSPARK_DRIVER_PYTHON
+unset PYSPARK_DRIVER_PYTHON_OPTS
 spark-submit main.py --py-files *.py
 ```
 
@@ -35,6 +36,7 @@ The main script will try to find the last week that was analyzed and run the ana
 # TODO
 
 - Setup S3 folder to save incremental JSON results + implement reading/saving to S3
+- Add to Airflow to run after specific jobs
 
 # About us
 

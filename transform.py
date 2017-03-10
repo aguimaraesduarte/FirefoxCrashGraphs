@@ -29,7 +29,7 @@ def aggregate_by_client_date_e10s(filteredDF_str):
            first(pcd) as pcd,
            sum(ssl) as ssl,
            sum(cssm) as cssm,
-           sum(cdc) as cdc,
+           sum(cdc - sk) as cdc,
            sum(cdgmp + cdp) as cdpgmp
     FROM {table}
     GROUP BY cid, sd, e10s

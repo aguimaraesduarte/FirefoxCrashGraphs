@@ -29,6 +29,7 @@ def read_main_summary():
                allPingsDF.subsession_length.alias("ssl"),
                allPingsDF.crash_submit_success_main.alias("cssm"),
                allPingsDF.crashes_detected_content.alias("cdc"),
+               allPingsDF.shutdown_kill.alias("sk"),
                allPingsDF.crashes_detected_gmplugin.alias("cdgmp"),
                allPingsDF.crashes_detected_plugin.alias("cdp"),
                allPingsDF.profile_creation_date.alias("pcd"),
@@ -44,7 +45,7 @@ def read_main_summary():
                                       .filter(allPingsDFSelect.channel == "release")\
                                       .filter(allPingsDFSelect.appname == "Firefox")\
                                       .filter(allPingsDFSelect.sd >= SD_CUTOUT_START_STR)\
-                                      .fillna({"ssl": 0, "cssm":0, "cdc":0, "cdgmp":0, "cdp":0})\
+                                      .fillna({"ssl": 0, "cssm":0, "cdc":0, "cdgmp":0, "cdp":0, "sk":0})\
                                       .filter(allPingsDFSelect.ssl >= 0)\
                                       .filter(allPingsDFSelect.ssl <= 86400)\
                                       .filter(allPingsDFSelect.pcd >= PCD_CUTOUT_START_INT)\
