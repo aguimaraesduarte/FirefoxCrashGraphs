@@ -130,17 +130,10 @@ def mapCrashes(row):
 def main_alg():
     """
     This function ties everything together.
-    If no date parameters are specified, the analysis is done for the week ending yesterday.
-    If both date parameters are specified (as "%Y-%m-%d" strings), the program will find all
-        Mondays, Wednesdays, and Fridays in-between the two dates and run the algorithm for
-        all weeks ending on those days. This is used for backfilling data only!
-
-    @params:
-        start_backfill: [string "%Y-%m-%d"] first end_date for backfilling
-        end_backfill: [string "%Y-%m-%d"] last end_date for backfilling
-        ex: start_backfill="2016-10-01" and end_backfill="2017-01-01" will produce data for **all** M, W, F
-            between October 1st 2016 and January 1st 2017
+    The analysis is done for however many days since the last run (obtained by parsing available JSON files in the same directory).
+    If no such files are found, the anaysis is run since September 1st 2016.
     """
+    
     # setup spark
     sc = SparkContext(appName="FirefoxCrashGraphs")
     sqlContext = SQLContext(sc)
