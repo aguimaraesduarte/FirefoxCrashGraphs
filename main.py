@@ -259,11 +259,11 @@ def main_alg():
         write_dict_json("fx_crashgraphs", summary, start_date_str, end_date_str)
         print "DONE!"
 
-    print
-    print "**** MERGING SUMMARY JSON FILES...",
-    # merge summary JSON files into one
-    os.system('jq -c -s "[.[]|.[]]" fx_crashgraphs-*.json > "fx_crashgraphs.json"')
-    print "DONE!"
+        print
+        print "**** MERGING SUMMARY JSON FILES...",
+        # merge summary JSON files into one
+        os.system('jq -c -s "[.[]|.[]]" fx_crashgraphs-*.json > "fx_crashgraphs.json"')
+        print "DONE!"
 
 if __name__ == '__main__':
     main_alg()

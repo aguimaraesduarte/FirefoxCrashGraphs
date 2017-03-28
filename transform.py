@@ -65,7 +65,7 @@ def get_crash_rates_by_user(aggregateDF_str, start_date_str, end_date_str):
            SUM(cdc) / ((SUM(ssl) / 60 / 60)) AS cc,
            SUM(cdpgmp) / ((SUM(ssl) / 60 / 60)) AS pc
     FROM {table}
-    WHERE sd BETWEEN {start} AND {end}
+    WHERE sd BETWEEN '{start}' AND '{end}'
     GROUP BY cid
     )
     """.format(table=aggregateDF_str,
@@ -109,7 +109,7 @@ def get_crash_rates_by_user_and_e10s(aggregateDF_str, start_date_str, end_date_s
            SUM(cdc) / ((SUM(ssl) / 60 / 60)) AS cc,
            SUM(cdpgmp) / ((SUM(ssl) / 60 / 60)) AS pc
     FROM {table}
-    WHERE sd BETWEEN {start} AND {end}
+    WHERE sd BETWEEN '{start}' AND '{end}'
     GROUP BY cid, e10s
     )
     GROUP BY e10s
@@ -144,7 +144,7 @@ def get_wau7(aggregateDF_str, start_date_str, end_date_str):
     query = """
     SELECT count(distinct cid) as wau7
     FROM {table}
-    WHERE sd BETWEEN {start} AND {end}
+    WHERE sd BETWEEN '{start}' AND '{end}'
     AND ssl>0
     """.format(table=aggregateDF_str,
                start=start_date_str,
@@ -167,7 +167,7 @@ def get_num_crashed(aggregateDF_str, start_date_str, end_date_str):
     query = """
     SELECT cid, SUM(cssm + cdc + cdpgmp) as total_crashes
     FROM {table}
-    WHERE sd BETWEEN {start} AND {end}
+    WHERE sd BETWEEN '{start}' AND '{end}'
     AND ssl>0
     GROUP BY cid
     HAVING total_crashes > 0
@@ -195,7 +195,7 @@ def get_num_new_profiles(aggregateDF_str, start_date_str, end_date_str):
     query = """
     SELECT count(distinct cid) as new_profiles
     FROM {table}
-    WHERE sd BETWEEN {start_sd} AND {end_sd}
+    WHERE sd BETWEEN '{start_sd}' AND '{end_sd}'
     AND pcd BETWEEN {start_pcd} AND {end_pcd}
     AND ssl>0
     """.format(table=aggregateDF_str,
@@ -222,7 +222,7 @@ def get_num_new_profiles_crashed(aggregateDF_str, start_date_str, end_date_str):
     query = """
     SELECT cid, SUM(cssm + cdc + cdpgmp) as total_crashes
     FROM {table}
-    WHERE sd BETWEEN {start_sd} AND {end_sd}
+    WHERE sd BETWEEN '{start_sd}' AND '{end_sd}'
     AND pcd BETWEEN {start_pcd} AND {end_pcd}
     AND ssl>0
     GROUP BY cid
@@ -259,7 +259,7 @@ def get_e10s_counts(aggregateDF_str, start_date_str, end_date_str):
                e10s,
                SUM(cssm + cdc + cdpgmp) as total_crashes
         FROM {table}
-        WHERE sd BETWEEN {start} AND {end}
+        WHERE sd BETWEEN '{start}' AND '{end}'
         GROUP BY cid, e10s
         HAVING total_crashes > 0
         )
@@ -292,7 +292,7 @@ def aggregate_subset(aggregateDF_str, start_date_str, end_date_str):
 
     (SELECT distinct cid
     FROM {lhs}
-    WHERE sd BETWEEN {start} AND {end}
+    WHERE sd BETWEEN '{start}' AND '{end}'
     AND cssm + cdc + cdpgmp > 0) AS LHS
 
     LEFT JOIN
