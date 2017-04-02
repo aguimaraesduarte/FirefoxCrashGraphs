@@ -4,7 +4,7 @@ Firefox Crash Graphs is a tri-weekly (M, W, F) report of crash analysis on a rep
 # How is the report created?
 The data for this report comes from Firefox’s built-in Telemetry data system. Firefox automatically collects information about crashes and sends this to Mozilla roughly daily, unless users disable this collection. This raw data is processed to remove corrupted or inaccurate entries and is then aggregated. This aggregation anonymizes the data, removing indicators that might be used to identify individual users.
 
-At the end of the process, the aggregated, anonymized data is exported to a public JSON file and published on the [Mozilla Metrics website](https://metrics.mozilla.com/protected/sguha/crashgraphs/) (protected for now, only for users with LDAP login).
+At the end of the process, the aggregated, anonymized data is exported to a public JSON file and published [here](https://people-mozilla.org/~sguha/mozilla/crashgraphs/).
 
 # Front-end Setup
 In order to run the website locally the following commands must be run (`http-server` is a `node.js` dependency of this project). Installation of this dependency are well documented and found online. Bower can be used with this project, but a CDN is currently used.
