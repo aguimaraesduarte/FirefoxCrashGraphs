@@ -163,14 +163,14 @@ def main_alg():
 
     # get date ranges
     dates = [] # --list of all end_dates in period
-    print "***** FINDING ALL Mondays, Wednesdays, Fridays BETWEEN {start} AND {end}..."\
+    print "***** FINDING ALL WEEKDAYS BETWEEN {start} AND {end}..."\
            .format(start=start_backfill, end=end_backfill),
 
     # get all M, W, F between the two provided dates
     delta = end_backfill - start_backfill
     for i in range(delta.days + 1):
         day = end_backfill - timedelta(days=i)
-        if day.weekday() in [0,2,4]:
+        if day.weekday() in [0,1,2,3,4]:
             end_date = day
             start_date = day - timedelta(days=6)
             dates.append( (start_date, end_date) )

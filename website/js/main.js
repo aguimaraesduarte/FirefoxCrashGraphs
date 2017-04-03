@@ -35,6 +35,21 @@ var hoursFile = getHoursFilePath(global.currentDate)
 
 var firefoxReleasesPath = "https://product-details.mozilla.org/1.0/firefox.json"
 
+var contentCrashesDateChangeDate = new Date('2017-03-07T07:00:00.000Z')
+var contentCrashesDateChangeLabel = 'Shutdown kills removed (click me)'
+
+var clicker = function() {
+      alert("Starting on March 7th 2017, shutdown kills are subtracted from content crashes.\n\
+This change causes this crash rate to drop considerably.\n\
+Metrics after this date should be more accurate.");
+    };
+
+var shutdown_kills = {
+  date: contentCrashesDateChangeDate,
+  label: contentCrashesDateChangeLabel,
+  click: clicker,
+}
+
 // main json file for first graphs &
 // release json files are loaded in
 // series. TODO: change to async if
@@ -56,7 +71,8 @@ d3.queue()
 
   for(var release in firefoxReleases){
     if(firefoxReleases[release].date >= lastYearStr){
-      global.allMarkers.push({
+      global.allMarkers.push(
+      {
         date: firefoxReleases[release].date,
         // store category to filter by
         // particular release later
@@ -70,6 +86,7 @@ d3.queue()
 
   // filter out all of the release canidates
   var filteredMarkers = global.allMarkers.filter(filterCategory.bind(this, "major"));
+  filteredMarkers.push(shutdown_kills);
 
   fx_crashgraphs = MG.convert.date(fx_crashgraphs, "date");
 
@@ -288,6 +305,7 @@ function updateHours(hoursFile){
 function updateMarkers(category){
   // update the markers for all of the timeseries charts (currently)
   var filteredMarkers = global.allMarkers.filter(filterCategory.bind(this, category));
+  filteredMarkers.push(shutdown_kills);
   // update the charts
   global.charts = global.charts.map(function(chart){
     chart.markers = filteredMarkers;
