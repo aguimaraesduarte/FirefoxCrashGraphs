@@ -165,7 +165,7 @@ def get_num_crashed(aggregateDF_str, start_date_str, end_date_str):
     """
 
     query = """
-    SELECT cid, SUM(cssm + cdc + cdpgmp) as total_crashes
+    SELECT cid, SUM(cssm + cdc) as total_crashes
     FROM {table}
     WHERE sd BETWEEN '{start}' AND '{end}'
     AND ssl>0
@@ -201,7 +201,7 @@ def get_num_new_profiles(aggregateDF_str, start_date_str, end_date_str):
     """.format(table=aggregateDF_str,
                start_sd=start_date_str,
                end_sd=end_date_str,
-               start_pcd=date2int(str2date(start_date_str)),
+               start_pcd=date2int(str2date(start_date_str))-7,
                end_pcd=date2int(str2date(end_date_str)))
 
     new_profiles = sqlContext.sql(query).collect()
@@ -220,7 +220,7 @@ def get_num_new_profiles_crashed(aggregateDF_str, start_date_str, end_date_str):
     """
 
     query = """
-    SELECT cid, SUM(cssm + cdc + cdpgmp) as total_crashes
+    SELECT cid, SUM(cssm + cdc) as total_crashes
     FROM {table}
     WHERE sd BETWEEN '{start_sd}' AND '{end_sd}'
     AND pcd BETWEEN {start_pcd} AND {end_pcd}
@@ -230,7 +230,7 @@ def get_num_new_profiles_crashed(aggregateDF_str, start_date_str, end_date_str):
     """.format(table=aggregateDF_str,
                start_sd=start_date_str,
                end_sd=end_date_str,
-               start_pcd=date2int(str2date(start_date_str)),
+               start_pcd=date2int(str2date(start_date_str))-7,
                end_pcd=date2int(str2date(end_date_str)))
 
     crashed_new_profiles = sqlContext.sql(query)
@@ -257,7 +257,7 @@ def get_e10s_counts(aggregateDF_str, start_date_str, end_date_str):
         (
         SELECT cid,
                e10s,
-               SUM(cssm + cdc + cdpgmp) as total_crashes
+               SUM(cssm + cdc) as total_crashes
         FROM {table}
         WHERE sd BETWEEN '{start}' AND '{end}'
         GROUP BY cid, e10s
@@ -293,7 +293,7 @@ def aggregate_subset(aggregateDF_str, start_date_str, end_date_str):
     (SELECT distinct cid
     FROM {lhs}
     WHERE sd BETWEEN '{start}' AND '{end}'
-    AND cssm + cdc + cdpgmp > 0) AS LHS
+    AND cssm + cdc > 0) AS LHS
 
     LEFT JOIN
 
@@ -353,7 +353,7 @@ def RDD_to_pandas(mappedRDD, filter_str="", select_cols = []):
                                           "has_main_crash",
                                           "has_content_crash",
                                           "has_plugin_crash",
-                                          "last_crash_type"])
+                                          "first_crash_type"])
 
     if filter_str != "":
         crash_statistics_pd = crash_statistics_pd.filter(filter_str)
@@ -374,8 +374,8 @@ def getCountsLastCrashes(pd_df):
     @params:
         pd_df: [pandas DF] pandas data frame to get the counts of
     """
-    counts_tot = pd_df.last_crash_type.value_counts() / pd_df.shape[0]
-    counts_mult = pd_df[pd_df.has_multiple_crashes==True].last_crash_type.value_counts() / pd_df[pd_df.has_multiple_crashes==True].shape[0]
-    counts_first = pd_df[pd_df.has_multiple_crashes==False].last_crash_type.value_counts() / pd_df[pd_df.has_multiple_crashes==False].shape[0]
+    counts_tot = pd_df.first_crash_type.value_counts() / pd_df.shape[0]
+    counts_mult = pd_df[pd_df.has_multiple_crashes==True].first_crash_type.value_counts() / pd_df[pd_df.has_multiple_crashes==True].shape[0]
+    counts_first = pd_df[pd_df.has_multiple_crashes==False].first_crash_type.value_counts() / pd_df[pd_df.has_multiple_crashes==False].shape[0]
 
     return (counts_tot, counts_mult, counts_first)

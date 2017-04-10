@@ -42,7 +42,7 @@ def mapCrashes(row):
 
     # return the sum of all crashes for a given submission date index
     def sumCrashes(row, index):
-        return sum([row.cssm[index], row.cdc[index], row.cdpgmp[index]])
+        return sum([row.cssm[index], row.cdc[index]])
 
     # return boolean whether there was a crash for a given submission date index
     def isCrash(row, index):
@@ -166,7 +166,7 @@ def main_alg():
     print "***** FINDING ALL WEEKDAYS BETWEEN {start} AND {end}..."\
            .format(start=start_backfill, end=end_backfill),
 
-    # get all M, W, F between the two provided dates
+    # get all weekdays between the two provided dates
     delta = end_backfill - start_backfill
     for i in range(delta.days + 1):
         day = end_backfill - timedelta(days=i)
@@ -177,7 +177,7 @@ def main_alg():
     print "{} DATES".format(len(dates))
 
     # loop through all dates
-    for i, d in enumerate(dates):
+    for i, d in enumerate(reversed(dates)):
         print
         print "***** DATE {curr} of {tot}".format(curr=i+1, tot=len(dates))
         start_date = d[0]

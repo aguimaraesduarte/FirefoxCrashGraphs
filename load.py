@@ -86,6 +86,44 @@ def make_dict_results(end_date, wau7, num_new_profiles, num_profiles_crashed, nu
     """
 
     counts_tot, counts_mult, counts_first = getCountsLastCrashes(df_pd)
+    try:
+        counts_tot_cssm = counts_tot.cssm
+    except:
+        counts_tot_cssm = 0
+    try:
+        counts_tot_cdc = counts_tot.cdc
+    except:
+        counts_tot_cdc = 0
+    try:
+        counts_tot_cdpgmp = counts_tot.cdpgmp
+    except:
+        counts_tot_cdpgmp = 0
+
+    try:
+        counts_mult_cssm = counts_mult.cssm
+    except:
+        counts_mult_cssm = 0
+    try:
+        counts_mult_cdc = counts_mult.cdc
+    except:
+        counts_mult_cdc = 0
+    try:
+        counts_mult_cdpgmp = counts_mult.cdpgmp
+    except:
+        counts_mult_cdpgmp = 0
+
+    try:
+        counts_first_cssm = counts_first.cssm
+    except:
+        counts_first_cssm = 0
+    try:
+        counts_first_cdc = counts_first.cdc
+    except:
+        counts_first_cdc = 0
+    try:
+        counts_first_cdpgmp = counts_first.cdpgmp
+    except:
+        counts_first_cdpgmp = 0
 
     return {
         "date": end_date.strftime("%Y-%m-%d"),
@@ -107,15 +145,15 @@ def make_dict_results(end_date, wau7, num_new_profiles, num_profiles_crashed, nu
         "crash_rate_plugin_avg_by_user_and_e10s_disabled": crash_rates_avg_by_user_and_e10s[5]*1000,
         "median_hours_between_crashes": df_pd.total_ssl_between_crashes.median(),
         "geom_hours_between_crashes": geometric_mean(df_pd.total_ssl_between_crashes),
-        "prop_last_crash_main_tot": counts_tot.cssm,
-        "prop_last_crash_content_tot": counts_tot.cdc,
-        "prop_last_crash_plugin_tot": counts_tot.cdpgmp,
-        "prop_last_crash_main_mult": counts_mult.cssm,
-        "prop_last_crash_content_mult": counts_mult.cdc,
-        "prop_last_crash_plugin_mult": counts_mult.cdpgmp,
-        "prop_last_crash_main_first": counts_first.cssm,
-        "prop_last_crash_content_first": counts_first.cdc,
-        "prop_last_crash_plugin_first": counts_first.cdpgmp
+        "prop_last_crash_main_tot": counts_tot_cssm,
+        "prop_last_crash_content_tot": counts_tot_cdc,
+        "prop_last_crash_plugin_tot": counts_tot_cdpgmp,
+        "prop_last_crash_main_mult": counts_mult_cssm,
+        "prop_last_crash_content_mult": counts_mult_cdc,
+        "prop_last_crash_plugin_mult": counts_mult_cdpgmp,
+        "prop_last_crash_main_first": counts_first_cssm,
+        "prop_last_crash_content_first": counts_first_cdc,
+        "prop_last_crash_plugin_first": counts_first_cdpgmp
     }
 
 def find_last_date(directory=".", start="fx_crashgraphs-", end=".json"):

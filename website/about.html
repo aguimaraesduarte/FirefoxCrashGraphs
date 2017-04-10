@@ -82,15 +82,15 @@
           <li><kbd>crash_rate_plugin</kbd>: crashes experienced due to a <b>plugin</b> per user per thousand hours.
           <br>(note: we sum <i><a href="https://github.com/mozilla/telemetry-batch-view/blob/master/src/main/scala/com/mozilla/telemetry/views/MainSummaryView.scala#L660" target="_blank">crashes_detected_plugin</a></i> and <i><a href="https://github.com/mozilla/telemetry-batch-view/blob/master/src/main/scala/com/mozilla/telemetry/views/MainSummaryView.scala#L662" target="_blank">crashes_detected_gmplugin</a></i> as a single type of plugin crash)</li>
           <li><kbd>weekly_active_users</kbd>: number of users active in the week ending on the provided date.</li>
-          <li><kbd>wau_crashes</kbd>: out of all weekly active users, how many experienced a crash that week?</li>
-          <li><kbd>multiple_crashes</kbd>: out of all users that crashed during the week, how many have had a prior crash in their history?</li>
-          <li><kbd>first_time_crashes</kbd>: out of all users that crashed during the week, for how many was it their first crash?</li>
-          <li><kbd>median_hours_between_crashes</kbd>: median number of active hours between the two most recent crashes for users who have had multiple crashes.</li>
-          <li><kbd>geom_mean_hours_between_crashes</kbd>: geometric mean of active hours between the two most recent crashes for users who have had multiple crashes.</li>
+          <li><kbd>wau_crashes</kbd>: out of all weekly active users, how many experienced a product crash that week?</li>
+          <li><kbd>multiple_crashes</kbd>: out of all users that crashed during the week, how many have had a prior product crash in their history?</li>
+          <li><kbd>first_time_crashes</kbd>: out of all users that crashed during the week, for how many was it their first product crash?</li>
+          <li><kbd>median_hours_between_crashes</kbd>: median number of active hours between the two most recent product crashes for users who have had multiple product crashes.</li>
+          <li><kbd>geom_mean_hours_between_crashes</kbd>: geometric mean of active hours between the two most recent product crashes for users who have had multiple product crashes.</li>
           <li><kbd>e10s_enabled/disabled</kbd>: out of all weekly active users that crashed, how many had e10s enabled/disabled?</li>
           <li><kbd>main/content/plugin_e10s_enabled/disabled</kbd>: main/content/plugin crash rates as above, for profiles that had e10s enabled or disabled for that week.</li>
-          <li><kbd>new_profiles</kbd>: out of all weekly active users, how many created their profile that week?</li>
-          <li><kbd>percentage_new_crashes</kbd>: out of all the new profiles created that week, how many experienced a crash?</li>
+          <li><kbd>new_profiles</kbd>: out of all weekly active users, how many created their profile within the past two weeks?</li>
+          <li><kbd>percentage_new_crashes</kbd>: out of all the new profiles created the past two weeks, how many experienced a product crash?</li>
         </ul>
       </div>
     </div>
@@ -118,13 +118,13 @@
     <div class='row'>
       <div class='col-lg-12 about-prose'>
         <h3><font color='white'>Data Aggregation</font></h3>
-        <p>Data has been aggregated by user and by day of activity, so for each $(user,\ day)$ tuple, we have the sum of subsession lengths, and the sum of each type of crash. For each user that crashed during the week, we find the most recent date when a crash occurred. We then evaluate whether one or more crashes were recorded for that user on that day (so the sum of all three crash types for that user on that day).</p>
+        <p>Data has been aggregated by user and by day of activity, so for each $(user,\ day)$ tuple, we have the sum of subsession lengths, and the sum of each type of crash. For each user that crashed during the week, we find the most recent date when a product crash occurred. We then evaluate whether one or more product crashes were recorded for that user on that day (so the sum of main and content crashes for that user on that day).</p>
           <ul>
-          <li>If this total is more than 1 (through any combination of the three crash types), then that user is said to have had multiple crashes, and the number of days between the two most recents crashes is 0. Since the data has been aggregated by day, this is the highest resolution we can get for this metric, so the number of hours between crashes is also set to 0.</li>
-          <li>If this total is exactly 1 (i.e., the user experienced only one crash of any kind on that day), then we look in their previous available history for another day where a crash was recorded.</li>
+          <li>If this total is more than 1 (through any combination of the crash types), then that user is said to have had multiple product crashes, and the number of days between the two most recents product crashes is 0. Since the data has been aggregated by day, this is the highest resolution we can get for this metric, so the number of hours between product crashes is also set to 0.</li>
+          <li>If this total is exactly 1 (i.e., the user experienced only one crash of any kind on that day), then we look in their previous available history for another day where a product crash was recorded.</li>
             <ul>
-            <li>If one such day is found, then the user is said to have had multiple crashes, and we measure the time between them. This way, we can get the number of days between crashes and the number of hours between crashes (this is the sum of subsession lengths for days between the two most recent crash dates).</li>
-            <li>If no such day is found, then the user has no previous recorded crashes, and is said to be a first-time crash. For these users, we cannot compute time between crashes. However, this count could be correlated to the number of new profiles created that week and needs to be investigated further.</li>
+            <li>If one such day is found, then the user is said to have had multiple product crashes, and we measure the time between them. This way, we can get the number of days between product crashes and the number of hours between product crashes (this is the sum of subsession lengths for days between the two most recent product crash dates).</li>
+            <li>If no such day is found, then the user has no previous recorded product crashes, and is said to be a first-time product crash. For these users, we cannot compute time between product crashes. However, this count could be correlated to the number of new profiles created that week and needs to be investigated further.</li>
             </ul>
           </ul>
       </div>
@@ -154,7 +154,7 @@
     <div class='row'>
       <div class='col-lg-12 about-prose'>
         <h3><font color='white'>New Users</font></h3>
-        <p>New users are defined as those whose profile creation date lies within the week of interest. For example, if we are looking at the week ending on Jan 17, then new users are such that their profile was created between Jan 10 and Jan 17 (and they were active in that period). This definition can be tweaked if necessary.</p>
+        <p>New users are defined as those whose profile creation date lies within the past two weeks of interest. For example, if we are looking at the week ending on Jan 17, then new users are such that their profile was created between Jan 3 and Jan 17 (and they were active between Jan 10 and Jan 17). This definition can be tweaked if necessary.</p>
       </div>
     </div>
 
@@ -163,7 +163,7 @@
     <div class='row'>
       <div class='col-lg-12 about-prose'>
         <h3><font color='white'>Histograms</font></h3>
-        <p>The histograms of hours between crashes are heavily skewed towards lower values. Taking the median of these counts to create time-series plots may not be the most accurate representation of such distributions. Therefore, we also plot the geometric mean using log-transformed values (i.e., $exp(avg(log(x+1)))-1$, where we add 1 to the log since we have to deal with zeroes. The extra 1 is then removed from the calculated mean) to correct for this skewness. This should be a better and more accurate metric for these variables. In general, these two metrics behave similarly.</p>
+        <p>The histograms of hours between product crashes are heavily skewed towards lower values. Taking the median of these counts to create time-series plots may not be the most accurate representation of such distributions. Therefore, we also plot the geometric mean using log-transformed values (i.e., $exp(avg(log(x+1)))-1$, where we add 1 to the log since we have to deal with zeroes. The extra 1 is then removed from the calculated mean) to correct for this skewness. This should be a better and more accurate metric for these variables. In general, these two metrics behave similarly.</p>
       </div>
     </div>
 

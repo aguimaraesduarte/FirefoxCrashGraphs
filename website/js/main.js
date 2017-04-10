@@ -101,11 +101,11 @@ d3.queue()
       legend: ["crash_rate_main", "crash_rate_content", "crash_rate_plugin"],//,
                //"crash_rate_main_avg_by_user", "crash_rate_content_avg_by_user", "crash_rate_plugin_avg_by_user"],
       description: '<ul><li><kbd>crash_rate_main</kbd>: crashes experienced due to a <b>browser crash</b> (full crash) per user per thousand hours.\
-        <br>(note: we use <i><a href="https://github.com/mozilla/telemetry-batch-view/blob/master/src/main/scala/com/mozilla/telemetry/views/MainSummaryView.scala#L666" target="_blank">crash_submit_success_main</a></i>)</li>\
-        <li><kbd>crash_rate_content</kbd>: crashes experienced due to a <b>content crash</b> (tab crash) per user per thousand hours.\
-        <br>(note: we use <i><a href="https://github.com/mozilla/telemetry-batch-view/blob/master/src/main/scala/com/mozilla/telemetry/views/MainSummaryView.scala#L661" target="_blank">crashes_detected_content</a></i>)</li>\
-        <li><kbd>crash_rate_plugin</kbd>: crashes experienced due to a <b>plugin</b> per user per thousand hours.\
-        <br>(note: we sum <i><a href="https://github.com/mozilla/telemetry-batch-view/blob/master/src/main/scala/com/mozilla/telemetry/views/MainSummaryView.scala#L660" target="_blank">crashes_detected_plugin</a></i> and <i><a href="https://github.com/mozilla/telemetry-batch-view/blob/master/src/main/scala/com/mozilla/telemetry/views/MainSummaryView.scala#L662" target="_blank">crashes_detected_gmplugin</a></i> as a single type of plugin crash)</li></ul>'
+                    <br>(note: we use <i><a href="https://github.com/mozilla/telemetry-batch-view/blob/master/src/main/scala/com/mozilla/telemetry/views/MainSummaryView.scala#L666" target="_blank">crash_submit_success_main</a></i>)</li>\
+                    <li><kbd>crash_rate_content</kbd>: crashes experienced due to a <b>content crash</b> (tab crash) per user per thousand hours.\
+                    <br>(note: we use <i><a href="https://github.com/mozilla/telemetry-batch-view/blob/master/src/main/scala/com/mozilla/telemetry/views/MainSummaryView.scala#L661" target="_blank">crashes_detected_content</a></i>)</li>\
+                    <li><kbd>crash_rate_plugin</kbd>: crashes experienced due to a <b>plugin</b> per user per thousand hours.\
+                    <br>(note: we sum <i><a href="https://github.com/mozilla/telemetry-batch-view/blob/master/src/main/scala/com/mozilla/telemetry/views/MainSummaryView.scala#L660" target="_blank">crashes_detected_plugin</a></i> and <i><a href="https://github.com/mozilla/telemetry-batch-view/blob/master/src/main/scala/com/mozilla/telemetry/views/MainSummaryView.scala#L662" target="_blank">crashes_detected_gmplugin</a></i> as a single type of plugin crash)</li></ul>'
     },
     {
       title: "Percentage of Weekly Active Users that Crashed",
@@ -114,7 +114,7 @@ d3.queue()
       legend: ["wau_crashes"],
       format: "percentage",
       aggregate_rollover: false,
-      description: '<ul><li><kbd>wau_crashes</kbd>: out of all weekly active users, how many experienced a crash that week?</li></ul>'
+      description: '<ul><li><kbd>weekly_active_users</kbd>: number of users active in the week ending on the provided date.</li></ul>'
     },
     {
       title: "Percentage of First Crashes Recorded",
@@ -122,8 +122,8 @@ d3.queue()
       y_accessor: ["proportion_first_time_crashes", "proportion_multiple_crashes"],
       legend: ["first_time_crashes", "multiple_crashes"],
       format: "percentage",
-      description: '<ul><li><kbd>multiple_crashes</kbd>: out of all users that crashed during the week, how many have had a prior crash in their history?</li>\
-      <li><kbd>first_time_crashes</kbd>: out of all users that crashed during the week, for how many was it their first crash?</li></ul>'
+      description: '<ul><li><kbd>multiple_crashes</kbd>: out of all users that crashed during the week, how many have had a prior product crash in their history?</li>\
+      <li><kbd>first_time_crashes</kbd>: out of all users that crashed during the week, for how many was it their first product crash?</li></ul>'
     },
     {
       title: "Percentage of e10s Adoption",
@@ -148,7 +148,7 @@ d3.queue()
       format: "percentage",
       legend: ["new_profiles"],
       aggregate_rollover: false,
-      description: '<ul><li><kbd>new_profiles</kbd>: out of all weekly active users, how many created their profile that week?</li></ul>'
+      description: '<ul><li><kbd>new_profiles</kbd>: out of all weekly active users, how many created their profile within the past two weeks?</li></ul>'
     },
     {
       title: "Percentage of New Profiles that Crashed",
@@ -157,7 +157,7 @@ d3.queue()
       legend: ["percentage_new_crashes"],
       format: "percentage",
       aggregate_rollover: false,
-      description: '<ul><li><kbd>percentage_new_crashes</kbd>: out of all the new profiles created that week, how many experienced a crash?</li></ul>'
+      description: '<ul><li><kbd>percentage_new_crashes</kbd>: out of all the new profiles created the past two weeks, how many experienced a product crash?</li></ul>'
     },
     // {
     //   title: "Percentage of Last Crashes Recorded",
@@ -177,8 +177,8 @@ d3.queue()
       target: "#hours_between_crashes",
       y_accessor: ["median_hours_between_crashes", "geom_hours_between_crashes"],
       legend: ["median_hours_between_crashes", "geom_mean_hours_between_crashes"],
-      description: '<ul><li><kbd>median_hours_between_crashes</kbd>: median number of active hours between the two most recent crashes for users who have had multiple crashes.</li>\
-      <li><kbd>geom_mean_hours_between_crashes</kbd>: geometric mean of active hours between the two most recent crashes for users who have had multiple crashes.</li></ul>'
+      description: '<ul><li><kbd>median_hours_between_crashes</kbd>: median number of active hours between the two most recent product crashes for users who have had multiple product crashes.</li>\
+                    <li><kbd>geom_mean_hours_between_crashes</kbd>: geometric mean of active hours between the two most recent product crashes for users who have had multiple product crashes.</li></ul>'
     }
   ]
 
@@ -292,7 +292,7 @@ function updateHours(hoursFile){
         min_x: 0,
         max_x: 30,
         min_y: 0,
-        max_y: 35000,
+        max_y: 5000,
         transition_on_update: false,
         full_width: true
       });
