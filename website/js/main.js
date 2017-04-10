@@ -283,7 +283,7 @@ function updateHours(hoursFile){
         title: "Count of Hours Between Crashes per User",
         data: fx_crashgraphs_hours,
         width: global.chart.width,
-        height: 300,
+        height: 500,
         xax_count: global.chart.xax_count,
         right: global.chart.right,
         target: target,
