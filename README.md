@@ -1,5 +1,5 @@
 # Firefox Crash Graphs
-Firefox Crash Graphs is a tri-weekly (M, W, F) report of crash analysis on a representative 1% sample of the population from Firefox's release channel on desktop. Main, content, and plugin crashes are collected and analyzed for this sample of the population and provide an accurate representation of the state of Firefox experience for desktop users and can be used by developers to improve it.
+[Firefox Crash Graphs](https://people-mozilla.org/~sguha/mozilla/crashgraphs/) is a daily (weekdays) report of crash analysis on a representative 1% sample of the population from Firefox's release channel on desktop. Main, content, and plugin crashes are collected and analyzed for this sample of the population and provide an accurate representation of the state of Firefox experience for desktop users and can be used by developers to improve it.
 
 # How is the report created?
 The data for this report comes from Firefox’s built-in Telemetry data system. Firefox automatically collects information about crashes and sends this to Mozilla roughly daily, unless users disable this collection. This raw data is processed to remove corrupted or inaccurate entries and is then aggregated. This aggregation anonymizes the data, removing indicators that might be used to identify individual users.
