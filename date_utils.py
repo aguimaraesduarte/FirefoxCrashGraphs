@@ -17,3 +17,9 @@ def str2date(s, f="%Y%m%d"):
     This function converts a string <s> in the format <f> to a date.
     """
     return datetime.strptime(s, f).date()
+
+def date2str(d, f="%Y%m%d"):
+    """
+    This function converts a date <d> to a string in the format <f>.
+    """
+    return d.strftime(f)

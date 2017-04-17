@@ -139,12 +139,11 @@
 
     <div class='row graphics chart'>
       <div class='col-lg-12 text-center graphic' id='crash-rates-e10s'>
-      <div class="btn-group btn-group-sm text-center split-by-crash" data-toggle="tooltip" data-placement="top" title="Select crash type to compare">
-          <button type="button" class="btn btn-default" data-category="main">Main</button>
-          <button type="button" class="btn btn-default active" data-category="content">Content</button>
-          <button type="button" class="btn btn-default" data-category="plugin">Plugin</button>
-      </div>
-
+        <div class="btn-group btn-group-sm text-center split-by-crash" data-toggle="tooltip" data-placement="top" title="Select crash type to compare">
+            <button type="button" class="btn btn-default" data-category="main">Main</button>
+            <button type="button" class="btn btn-default active" data-category="content">Content</button>
+            <button type="button" class="btn btn-default" data-category="plugin">Plugin</button>
+        </div>
       </div>
       <div class='col-lg-4 detail-prose'>
       
@@ -156,10 +155,16 @@
     <div class='row hor-line'></div>
 
     <div class='row graphics chart'>
-      <div class='col-lg-12 text-center graphic' id='percentage-crashed'></div>
+      <div class='col-lg-12 text-center graphic' id='percentage-crashed'>
+        <!-- <div class="btn-group btn-group-sm text-center split-by-wau-crash" data-toggle="tooltip" data-placement="top" title="Select minimum number of crashes">
+            <button type="button" class="btn btn-default active" data-category="All">All</button>
+            <button type="button" class="btn btn-default" data-category="1+">1+</button>
+            <button type="button" class="btn btn-default" data-category="2+">2+</button>
+        </div> -->
+      </div>
       <div class='col-lg-4 detail-prose'>
 
-	<!-- <p>The percentage of users that crashed per week has been increasing slowly over time. In general, around 8-12% of weekly active Firefox users have experienced any type of crash.</p> -->
+        <!-- <p>The percentage of users that crashed per week has been increasing slowly over time. In general, around 8-12% of weekly active Firefox users have experienced any type of crash.</p> -->
 
       </div>
     </div>
@@ -251,6 +256,7 @@
               <br>(note: we sum <i><a href="https://github.com/mozilla/telemetry-batch-view/blob/master/src/main/scala/com/mozilla/telemetry/views/MainSummaryView.scala#L660" target="_blank">crashes_detected_plugin</a></i> and <i><a href="https://github.com/mozilla/telemetry-batch-view/blob/master/src/main/scala/com/mozilla/telemetry/views/MainSummaryView.scala#L662" target="_blank">crashes_detected_gmplugin</a></i> as a single type of plugin crash)</li>
               <li><kbd>weekly_active_users</kbd>: number of users active in the week ending on the provided date.</li>
               <li><kbd>wau_crashes</kbd>: out of all weekly active users, how many experienced a product crash that week?</li>
+              <li><kbd>wau_2+_crashes</kbd>: out of all weekly active users, how many experienced more than 2 product crashes that week?</li>
               <li><kbd>multiple_crashes</kbd>: out of all users that crashed during the week, how many have had a prior product crash in their history?</li>
               <li><kbd>first_time_crashes</kbd>: out of all users that crashed during the week, for how many was it their first product crash?</li>
               <li><kbd>median_hours_between_crashes</kbd>: median number of active hours between the two most recent product crashes for users who have had multiple product crashes.</li>
@@ -258,7 +264,7 @@
               <li><kbd>e10s_enabled/disabled</kbd>: out of all weekly active users that crashed, how many had e10s enabled/disabled?</li>
               <li><kbd>main/content/plugin_e10s_enabled/disabled</kbd>: main/content/plugin crash rates as above, for profiles that had e10s enabled or disabled for that week.</li>
               <li><kbd>new_profiles</kbd>: out of all weekly active users, how many created their profile within the past two weeks?</li>
-              <li><kbd>percentage_new_crashes</kbd>: out of all the new profiles created the past two weeks, how many experienced a product crash?</li>
+              <li><kbd>percentage_new_crashes</kbd>: out of all the new profiles created the past two weeks, how many experienced a product crash this week?</li>
             </ul>
           </div>
         </div>

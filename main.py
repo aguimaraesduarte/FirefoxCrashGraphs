@@ -9,16 +9,14 @@ from math_utils import *
 
 import os
 
+S3_BUCKET_NAME = "mozilla-metrics"
+S3_PATH = "sguha/crashgraphs/JSON/"
+
 def mapCrashes(row):
     """
-    Applied to an RDD, this mapping function returns a tuple of seven elements for each Row of the dataframe:
+    Applied to an RDD, this mapping function returns a tuple of elements for each Row of the dataframe:
         - has_multiple_crashes: [True/False] whether the client_id has more than a single crash in its history
         - total_ssl_between_crashes: [float/None] number of hours between the two most recent crashes
-        - days_between_crashes: [int/None] number of days between the two most recent crashes
-        - has_main_crash: [True/False] whether the client_id has experienced a main crash in its history
-        - has_content_crash: [True/False] whether the client_id has experienced a content crash in its history
-        - has_plugin_crash: [True/False] whether the client_id has experienced a plugin crash in its history
-        - first_crash_type: [string] type of first (latest) crash ("cssm"/"cdc"/"cdpgmp")
 
     @params:
         row: [Row] a row from a longitudinal RDD that includes:
@@ -31,11 +29,10 @@ def mapCrashes(row):
     @logic:
         For all users that experienced a crash during the week:
         - find the day of the most recent crash
-        - if there are multiple crashes on that day, the time between crashes is 0 days and 0 hours
+        - if there are multiple crashes on that day, the time between crashes is 0 hours
         - if there is only one crash on that day
             - find the day of the next most recent crash
-                - if there is one, then get the number of days inbetween crashes, and the sum of all
-                    subsession lengths for that period
+                - if there is one, then get the sum of all subsession lengths for that period
                 - if there is no previous crash in the history for that profile, we cannot measure
                     time between crashes
     """
@@ -59,44 +56,14 @@ def mapCrashes(row):
                    cssm=list(cssm),
                    cdpgmp=list(cdpgmp))
 
-    # return the sum of all crashes by type (tuple (cssm, cdc, cdpgmp))
-    def sumCrashesByType(row):
-        return (sum(row.cssm), sum(row.cdc), sum(row.cdpgmp))
-
-    # return type of crash at index
-    ## returns main if main + other, content if content + plugin
-    def typeOfCrash(row, index):
-        if row.cssm[index] > 0:
-            return "cssm"
-        if row.cdc[index] > 0:
-            return "cdc"
-        if row.cdpgmp[index] > 0:
-            return "cdpgmp"
-        return "none"
-
     first_crash = None                   # submission date index of first (latest) crash
     next_crash = None                    # submission date index of second (second latest) crash
 
     has_multiple_crashes = False         # whether user has a previous crash
     total_ssl_between_crashes = None     # total subsession length between crashes
 
-    has_main_crash = False               # whether user has experienced a main crash
-    has_content_crash = False            # whether user has experienced a content crash
-    has_plugin_crash = False             # whether user has experienced a plugin crash
-
-    first_crash_type = None              # type of first (latest) crash [main, content, plugin]
-
     # sort the row by submission_date
     sorted_row = sort_row(row)
-
-    # find counts of crashes
-    sum_main, sum_content, sum_plugin = sumCrashesByType(sorted_row)
-    if sum_main > 0:
-        has_main_crash = True
-    if sum_content > 0:
-        has_content_crash = True
-    if sum_plugin > 0:
-        has_plugin_crash = True
 
     # iterate through all subsessions (brute force):
     for index, submission_date in enumerate(sorted_row.sd):
@@ -108,7 +75,6 @@ def mapCrashes(row):
         # if there were no previous crash, look for the first one
         elif isCrash(sorted_row, index):
             first_crash = index
-            first_crash_type = typeOfCrash(sorted_row, index)
             # if there was more than one crash that day
             if sumCrashes(sorted_row, index) > 1:
                 next_crash = index
@@ -121,11 +87,70 @@ def mapCrashes(row):
         total_ssl_between_crashes = sum(sorted_row.ssl[s]) / 60. / 60 # converted to hours
 
     return (has_multiple_crashes,      # True/False
-            total_ssl_between_crashes, # in hours
-            has_main_crash,            # True/False
-            has_content_crash,         # True/False
-            has_plugin_crash,          # True/False
-            first_crash_type)          # cssm/cdc/cdpgmp
+            total_ssl_between_crashes) # in hours
+
+def mapCrashes_new(row):
+    """
+    Applied to an RDD, this mapping function returns a tuple of elements for each Row of the dataframe:
+        - 
+
+    @params:
+        row: [Row] a row from a longitudinal RDD that includes:
+            - pcd: profile_creation_date
+            - sd: submission_date
+            - ssl: subsession_length
+            - cssm: crash_submit_success_main
+            - cdc: crash_detected_main
+            - cdpgmp: crash_detected_plugin + crash_detected_gmplugin
+
+    @logic:
+        For each profile, determine the number of crashes in the first two weeks of activity since pcd
+    """
+
+    # return the sum of all crashes for a given submission date index
+    def sumCrashes(row, index):
+        return sum([row.cssm[index], row.cdc[index]])
+
+    # sort row lists by submission_date
+    def sort_row(row):
+        zipped = sorted(zip(row.sd, row.cdc, row.cssm, row.cdpgmp, row.ssl), reverse=True)
+        sd, cdc, cssm, cdpgmp, ssl = zip(*zipped)
+        return Row(cid=row.cid,
+                   pcd=row.pcd,
+                   sd=list(sd),
+                   ssl=list(ssl),
+                   cdc=list(cdc),
+                   cssm=list(cssm),
+                   cdpgmp=list(cdpgmp))
+
+    # sort the row by submission_date
+    sorted_row = sort_row(row)
+
+    # get dates for first two weeks of activity
+    start_date_int = sorted_row.pcd
+    end_date_int = start_date_int + 13
+    start_date_str = date2str(int2date(start_date_int))
+    end_date_str = date2str(int2date(end_date_int))
+
+    # iterate through all subsessions (brute force):
+    tot_crashes = 0
+    for index, submission_date in enumerate(sorted_row.sd):
+        # if date is between what we want, the count number of crashes that day
+        if submission_date <= end_date_str:
+            tot_crashes += sumCrashes(sorted_row, index)
+        # since the list is sorted, we can break as soon as we pass the end_date variable
+        else:
+            break
+
+    # define groups
+    group = 0
+    if tot_crashes >= 1:
+        group = 1
+    if tot_crashes >= 2:
+        group = 2
+
+    return (group, 1)
+
 
 def main_alg():
     """
@@ -141,6 +166,11 @@ def main_alg():
     setup_load(sqlContext)
     setup_extract(sqlContext)
     setup_transform(sqlContext)
+
+    # fetch files from S3
+    print "***** FETCHING FILES FROM S3...",
+    fetch_latest_from_s3(S3_BUCKET_NAME, S3_PATH)
+    print "DONE!"
 
     # read and clean data; save as SQL table
     print "***** READING DATA...",
@@ -195,6 +225,11 @@ def main_alg():
         print "\tNumber of users that experienced a crash: {:,} ({:.2%} of active profiles)"\
                .format(num_profiles_crashed*100, float(num_profiles_crashed) / wau7)
 
+        # calculate number of profiles that crashed >= 2 times
+        num_profiles_crashed_2 = get_num_crashed_2(aggregateDF_str, start_date_str, end_date_str)
+        print "\tNumber of users that experienced >= 2 crashes: {:,} ({:.2%} of active profiles)"\
+               .format(num_profiles_crashed_2*100, float(num_profiles_crashed_2) / wau7)
+
         # calculate new profiles and proportion crashed
         num_new_profiles = get_num_new_profiles(aggregateDF_str, start_date_str, end_date_str)
         print "\tNew profiles: {:,} (based on a 1% sample) ({:.2%} of active profiles)".format(num_new_profiles*100,
@@ -206,11 +241,16 @@ def main_alg():
         # get subset of aggregated dataframe containing only the pings for profiles that crashed
         aggregate_crashed = aggregate_subset(aggregateDF_str, start_date_str, end_date_str)
 
+        # get subset of aggregated dataframe containing only the pings for profiles that were created 2 weeks prior
+        # aggregate_new = aggregate_new_users(aggregateDF_str, start_date_str, end_date_str)
+
         # transform into longitudinal format
         crashed_longitudinal = make_longitudinal(aggregate_crashed)
+        # new_longitudinal = make_longitudinal_new(aggregate_new)
 
         # apply mapping function
         crash_statistics = crashed_longitudinal.rdd.map(mapCrashes)
+        # new_statistics = new_longitudinal.rdd.map(mapCrashes_new)
 
         # get counts of crashed user types
         crash_statistics_counts = crash_statistics.countByKey()
@@ -220,6 +260,19 @@ def main_alg():
         print "\tNumber of profiles that crashed and had a previous crash: {:,} ({:.2%} of crashed profiles)"\
                .format(crash_statistics_counts[True]*100,
                        float(crash_statistics_counts[True])/num_profiles_crashed)
+
+        # get counts of new user types
+        # print "\tNew users: created between {} and {} and crashed within two weeks of profile creation"\
+        #       .format((str2date(end_date_str)-timedelta(days=20)).isoformat(),
+        #               (str2date(end_date_str)-timedelta(days=14)).isoformat())
+        # new_statistics_counts = new_statistics.countByKey()
+        # new_1 = (new_statistics_counts[1]+new_statistics_counts[2])
+        # new_2 = new_statistics_counts[2]
+        # new_tot = (new_statistics_counts[0]+new_statistics_counts[1]+new_statistics_counts[2])
+        # print "\tNumber of new profiles that crashed 1+ times: {:,} ({:.2%} of new users)"\
+        #        .format(new_1*100, float(new_1)/new_tot)
+        # print "\tNumber of profiles that crashed 2+ times: {:,} ({:.2%} of new users)"\
+        #        .format(new_2*100, float(new_2)/new_tot)
 
         # calculate counts for e10s
         e10s_counts = get_e10s_counts(aggregateDF_str, start_date_str, end_date_str)
@@ -247,23 +300,28 @@ def main_alg():
         print "***** SAVING CRASH DATA TO JSON...",
         crash_statistics_pd = RDD_to_pandas(crash_statistics, "has_multiple_crashes = True", ["total_ssl_between_crashes"])
         write_col_json("fx_crashgraphs_hours", crash_statistics_pd.total_ssl_between_crashes, "hours",
-                       start_date_str, end_date_str)
+                       start_date_str, end_date_str, S3_BUCKET_NAME, S3_PATH)
         print "DONE!"
 
         # get summary statistics
         print "***** SAVING RESULTS TO JSON...",
         crash_statistics_pd = RDD_to_pandas(crash_statistics) #TODO: combine the two to_pandas operations into one. This operation is expensive.
-        summary = make_dict_results(end_date, wau7, num_new_profiles, num_profiles_crashed, num_new_profiles_crashed,
+        summary = make_dict_results(end_date, wau7, num_new_profiles, num_profiles_crashed,num_profiles_crashed_2, num_new_profiles_crashed,
                                     crash_statistics_counts, crash_rates_avg_by_user, crash_rates_avg_by_user_and_e10s,
                                     crash_statistics_pd, e10s_counts)
-        write_dict_json("fx_crashgraphs", summary, start_date_str, end_date_str)
+        write_dict_json("fx_crashgraphs", summary, start_date_str, end_date_str, S3_BUCKET_NAME, S3_PATH)
         print "DONE!"
 
-        print
         print "**** MERGING SUMMARY JSON FILES...",
         # merge summary JSON files into one
         os.system('jq -c -s "[.[]|.[]]" fx_crashgraphs-*.json > "fx_crashgraphs.json"')
+        store_latest_on_s3(S3_BUCKET_NAME, S3_PATH, "fx_crashgraphs.json")
         print "DONE!"
+
+    print
+    # remove local json files
+    os.system('rm *.json')
+    print "DONE!"
 
 if __name__ == '__main__':
     main_alg()

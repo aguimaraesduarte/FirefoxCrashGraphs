@@ -96,10 +96,8 @@ d3.queue()
     {
       title: "Crash Rates (per user, per 1,000h)",
       target: "#crash-rates",
-      y_accessor: [//"crash_rate_main", "crash_rate_content", "crash_rate_plugin"],
-                   "crash_rate_main_avg_by_user", "crash_rate_content_avg_by_user", "crash_rate_plugin_avg_by_user"],
-      legend: ["crash_rate_main", "crash_rate_content", "crash_rate_plugin"],//,
-               //"crash_rate_main_avg_by_user", "crash_rate_content_avg_by_user", "crash_rate_plugin_avg_by_user"],
+      y_accessor: ["crash_rate_main_avg_by_user", "crash_rate_content_avg_by_user", "crash_rate_plugin_avg_by_user"],
+      legend: ["crash_rate_main", "crash_rate_content", "crash_rate_plugin"],
       description: '<ul><li><kbd>crash_rate_main</kbd>: crashes experienced due to a <b>browser crash</b> (full crash) per user per thousand hours.\
                     <br>(note: we use <i><a href="https://github.com/mozilla/telemetry-batch-view/blob/master/src/main/scala/com/mozilla/telemetry/views/MainSummaryView.scala#L666" target="_blank">crash_submit_success_main</a></i>)</li>\
                     <li><kbd>crash_rate_content</kbd>: crashes experienced due to a <b>content crash</b> (tab crash) per user per thousand hours.\
@@ -110,11 +108,11 @@ d3.queue()
     {
       title: "Percentage of Weekly Active Users that Crashed",
       target: "#percentage-crashed",
-      y_accessor: ["proportion_wau_crashes"],
-      legend: ["wau_crashes"],
+      y_accessor: ["proportion_wau_crashes", "proportion_wau_crashes_2"],
+      legend: ["wau_crashes", "wau_2+_crashes"],
       format: "percentage",
-      aggregate_rollover: false,
-      description: '<ul><li><kbd>wau_crashes</kbd>: out of all weekly active users, how many experienced a product crash that week?</li></ul>'
+      description: '<ul><li><kbd>wau_crashes</kbd>: out of all weekly active users, how many experienced a product crash that week?</li>\
+                    <li><kbd>wau_2+_crashes</kbd>: out of all weekly active users, how many experienced more than 2 product crashes that week?</li></ul>'
     },
     {
       title: "Percentage of First Crashes Recorded",
@@ -123,7 +121,7 @@ d3.queue()
       legend: ["first_time_crashes", "multiple_crashes"],
       format: "percentage",
       description: '<ul><li><kbd>multiple_crashes</kbd>: out of all users that crashed during the week, how many have had a prior product crash in their history?</li>\
-      <li><kbd>first_time_crashes</kbd>: out of all users that crashed during the week, for how many was it their first product crash?</li></ul>'
+                    <li><kbd>first_time_crashes</kbd>: out of all users that crashed during the week, for how many was it their first product crash?</li></ul>'
     },
     {
       title: "Percentage of e10s Adoption",
@@ -132,7 +130,7 @@ d3.queue()
       format: "percentage",
       legend: ["e10s_enabled", "e10s_disabled"],
       description: '<ul><li><kbd>e10s_enabled</kbd>: out of all weekly active users that crashed, how many had e10s enabled?</li>\
-      <li><kbd>e10s_disabled</kbd>: out of all weekly active users that crashed, how many had e10s disabled?</li></ul>'
+                    <li><kbd>e10s_disabled</kbd>: out of all weekly active users that crashed, how many had e10s disabled?</li></ul>'
     },
     {
       title: "Crash Rates (per e10s status)",
@@ -157,21 +155,8 @@ d3.queue()
       legend: ["percentage_new_crashes"],
       format: "percentage",
       aggregate_rollover: false,
-      description: '<ul><li><kbd>percentage_new_crashes</kbd>: out of all the new profiles created the past two weeks, how many experienced a product crash?</li></ul>'
+      description: '<ul><li><kbd>percentage_new_crashes</kbd>: out of all the new profiles created the past two weeks, how many experienced a product crash this week?</li></ul>'
     },
-    // {
-    //   title: "Percentage of Last Crashes Recorded",
-    //   target: "#last_crashes",
-    //   y_accessor: ["prop_last_crash_main_tot", "prop_last_crash_content_tot", "prop_last_crash_plugin_tot",
-    //                "prop_last_crash_main_mult", "prop_last_crash_content_mult", "prop_last_crash_plugin_mult",
-    //                "prop_last_crash_main_first", "prop_last_crash_content_first", "prop_last_crash_plugin_first"],
-    //   legend: ["prop_last_crash_main_tot", "prop_last_crash_content_tot", "prop_last_crash_plugin_tot",
-    //            "prop_last_crash_main_mult", "prop_last_crash_content_mult", "prop_last_crash_plugin_mult",
-    //            "prop_last_crash_main_first", "prop_last_crash_content_first", "prop_last_crash_plugin_first"],
-    //   format: "percentage",
-    //   description: '<ul><li><kbd>prop_last_crash_main/content/plugin_tot/mult/first</kbd>: out of all profiles/profiles that have multiple crashes/profiles that only ever had one crash, what is the proportion of the latest crash being main/content/crash?</li></ul>'
-    //   mg_select: true
-    // },
     {
       title: "Hours Between Crashes",
       target: "#hours_between_crashes",
@@ -358,6 +343,38 @@ $('.split-by-crash button').click(function(){
   // change button state
   $(this).addClass('active').siblings().removeClass('active');
 });
+
+
+// function updateWAUCrashGraph(category){
+//   // change the yaccessors
+//   if (category=="1+"){
+//     y_accessor = ["proportion_wau_crashes"],
+//     legend = ["wau_crashes"]
+//   } else if (category=="2+"){
+//     y_accessor = ["proportion_wau_crashes_2"],
+//     legend = ["wau_2+_crashes"]
+//   } else {
+//     y_accessor = ["proportion_wau_crashes", "proportion_wau_crashes_2"],
+//     legend = ["wau_crashes", "wau_2+_crashes"]
+//   }
+//   // update the charts
+//   // TODO: get chart by id
+//   global.charts[1].y_accessor = y_accessor;
+//   global.charts[1].legend = legend;
+
+//   // not sure what this does
+//   delete global.charts[1].xax_format;
+
+//   MG.data_graphic(global.charts[1]);
+// }
+
+// $('.split-by-wau-crash button').click(function(){
+//   var category = $(this).data('category');
+//   updateWAUCrashGraph(category)
+
+//   // change button state
+//   $(this).addClass('active').siblings().removeClass('active');
+// });
 
 
 

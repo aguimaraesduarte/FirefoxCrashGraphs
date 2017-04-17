@@ -181,6 +181,33 @@ def get_num_crashed(aggregateDF_str, start_date_str, end_date_str):
 
     return number_of_crashed_profiles
 
+def get_num_crashed_2(aggregateDF_str, start_date_str, end_date_str):
+    """
+    This function calculates and returns the total number of profiles that crashed >= 2 times between the two date arguments.
+
+    @params:
+        aggregateDF_str: [string] name of the dataframe returned by aggregate_by_client_date_e10s(...)
+        start_date_str: [string] start date for analysis
+        end_date_str: [string] end date for analysis
+    """
+
+    query = """
+    SELECT cid, SUM(cssm + cdc) as total_crashes
+    FROM {table}
+    WHERE sd BETWEEN '{start}' AND '{end}'
+    AND ssl>0
+    GROUP BY cid
+    HAVING total_crashes > 1
+    """.format(table=aggregateDF_str,
+               start=start_date_str,
+               end=end_date_str)
+
+    crashed_profiles_2 = sqlContext.sql(query)
+
+    number_of_crashed_profiles_2 = crashed_profiles_2.count()
+
+    return number_of_crashed_profiles_2
+
 def get_num_new_profiles(aggregateDF_str, start_date_str, end_date_str):
     """
     This function calculates and returns the number of new profiles (created between the two date arguments) that
@@ -309,6 +336,40 @@ def aggregate_subset(aggregateDF_str, start_date_str, end_date_str):
 
     return aggregate_crashed_clients_in_week
 
+def aggregate_new_users(aggregateDF_str, start_date_str, end_date_str):
+    """
+    This function creates and returns a subset of the aggregate table containing only the rows
+    concerning profiles that were created two weeks prior to start_date_str.
+
+    @params:
+        aggregateDF_str: [string] name of the dataframe returned by aggregate_by_client_date_e10s(...)
+        start_date_str: [string] start date for analysis (-20)
+        end_date_str: [string] end date for analysis (-14)
+    """
+
+    query = """
+    SELECT *
+    FROM
+
+    (SELECT distinct cid
+    FROM {lhs}
+    WHERE pcd BETWEEN {start} AND {end}
+    ) AS LHS
+
+    LEFT JOIN
+
+    {rhs}
+
+    USING(cid)
+    """.format(lhs=aggregateDF_str,
+               start=date2int(str2date(end_date_str)) - 20,
+               end=date2int(str2date(end_date_str)) - 14,
+               rhs=aggregateDF_str)
+
+    aggregate_new_clients_in_week = sqlContext.sql(query)
+
+    return aggregate_new_clients_in_week
+
 def make_longitudinal(agg_subset):
     """
     This function creates and returns a longitudinal dataframe from the aggregate dataframe grouped by client_id (cid).
@@ -330,11 +391,41 @@ def make_longitudinal(agg_subset):
                                    "cssm": "collect_list",
                                    "cdc": "collect_list",
                                    "cdpgmp": "collect_list"})\
-                             .withColumnRenamed("collect_list(sd)","sd")\
-                             .withColumnRenamed("collect_list(ssl)","ssl")\
-                             .withColumnRenamed("collect_list(cssm)","cssm")\
-                             .withColumnRenamed("collect_list(cdc)","cdc")\
-                             .withColumnRenamed("collect_list(cdpgmp)","cdpgmp")
+                             .withColumnRenamed("collect_list(sd)", "sd")\
+                             .withColumnRenamed("collect_list(ssl)", "ssl")\
+                             .withColumnRenamed("collect_list(cssm)", "cssm")\
+                             .withColumnRenamed("collect_list(cdc)", "cdc")\
+                             .withColumnRenamed("collect_list(cdpgmp)", "cdpgmp")
+    return longitudinal
+
+def make_longitudinal_new(agg_subset):
+    """
+    This function creates and returns a longitudinal dataframe from the aggregate dataframe grouped by client_id (cid).
+    Each Row from this dataframe contains the sequential information (lists) for:
+        - subsession_length (ssl),
+        - submission_date (sd),
+        - crash_submit_success_main (cssm),
+        - crash_detected_content (cdc),
+        - crash_detected_plugin + crash_detected_gmplugin (cdpgmp)
+    for each cid (+profile_creation_date (pcd))
+
+    @params:
+        agg_subset: [dataframe] dataframe returned by aggregate_subset(...)
+    """
+
+    longitudinal = agg_subset.groupBy(agg_subset.cid)\
+                             .agg({"pcd": "first",
+                                   "sd": "collect_list",
+                                   "ssl": "collect_list",
+                                   "cssm": "collect_list",
+                                   "cdc": "collect_list",
+                                   "cdpgmp": "collect_list"})\
+                             .withColumnRenamed("first(pcd)", "pcd")\
+                             .withColumnRenamed("collect_list(sd)", "sd")\
+                             .withColumnRenamed("collect_list(ssl)", "ssl")\
+                             .withColumnRenamed("collect_list(cssm)", "cssm")\
+                             .withColumnRenamed("collect_list(cdc)", "cdc")\
+                             .withColumnRenamed("collect_list(cdpgmp)", "cdpgmp")
     return longitudinal
 
 def RDD_to_pandas(mappedRDD, filter_str="", select_cols = []):
@@ -349,11 +440,7 @@ def RDD_to_pandas(mappedRDD, filter_str="", select_cols = []):
     """
 
     crash_statistics_pd = mappedRDD.toDF(["has_multiple_crashes",
-                                          "total_ssl_between_crashes",
-                                          "has_main_crash",
-                                          "has_content_crash",
-                                          "has_plugin_crash",
-                                          "first_crash_type"])
+                                          "total_ssl_between_crashes"])
 
     if filter_str != "":
         crash_statistics_pd = crash_statistics_pd.filter(filter_str)
@@ -365,17 +452,3 @@ def RDD_to_pandas(mappedRDD, filter_str="", select_cols = []):
 
     return crash_statistics_pd
 
-def getCountsLastCrashes(pd_df):
-    """
-    This function counts distinct values of last crashes for a pandas dataframe.
-    Returns a tuple of three counts: for all users, users who crashes multiple times, and users who crashed for their first time.
-    Single values for each crash type can then be accessed by its index or name.
-
-    @params:
-        pd_df: [pandas DF] pandas data frame to get the counts of
-    """
-    counts_tot = pd_df.first_crash_type.value_counts() / pd_df.shape[0]
-    counts_mult = pd_df[pd_df.has_multiple_crashes==True].first_crash_type.value_counts() / pd_df[pd_df.has_multiple_crashes==True].shape[0]
-    counts_first = pd_df[pd_df.has_multiple_crashes==False].first_crash_type.value_counts() / pd_df[pd_df.has_multiple_crashes==False].shape[0]
-
-    return (counts_tot, counts_mult, counts_first)
