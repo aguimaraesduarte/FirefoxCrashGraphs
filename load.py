@@ -56,7 +56,7 @@ def write_col_json(fn, pandas_col, interval_str, start_date_str, end_date_str,
         json_file.write(json_final)
 
     # save to S3
-    store_latest_on_s3(bucket_name, s3_data_path, file_name)
+    #store_latest_on_s3(bucket_name, s3_data_path, file_name)
 
 def write_dict_json(fn, res_data, start_date_str, end_date_str,
                     bucket_name, s3_data_path):
@@ -85,11 +85,12 @@ def write_dict_json(fn, res_data, start_date_str, end_date_str,
         json_file.write("[" + json_entry.encode('utf8') + "]\n")
 
     # save to S3
-    store_latest_on_s3(bucket_name, s3_data_path, file_name)
+    #store_latest_on_s3(bucket_name, s3_data_path, file_name)
 
-def make_dict_results(end_date, wau7, num_new_profiles, num_profiles_crashed, num_profiles_crashed_2, num_new_profiles_crashed,
+def make_dict_results(end_date, wau7, wau7_new, num_new_profiles, num_profiles_crashed, num_profiles_crashed_2,
+                      num_new_profiles_crashed, num_new_profiles_crashed_2, 
                       crash_statistics_counts, crash_rates_avg_by_user, crash_rates_avg_by_user_and_e10s,
-                      df_pd, e10s_counts):
+                      df_pd, e10s_counts, new_statistics_counts):
     """
     This function returns a dictionary with a summary of the results to output a json file.
 
@@ -97,6 +98,9 @@ def make_dict_results(end_date, wau7, num_new_profiles, num_profiles_crashed, nu
         keys to save as a dictionary. Self-explanatory
         df_pd: [pandas DF] Dataframe with crash data histograms
     """
+    new_1 = (new_statistics_counts[1]+new_statistics_counts[2])
+    new_2 = new_statistics_counts[2]
+    new_tot = (new_statistics_counts[0]+new_statistics_counts[1]+new_statistics_counts[2])
 
     return {
         "date": end_date.strftime("%Y-%m-%d"),
@@ -106,6 +110,7 @@ def make_dict_results(end_date, wau7, num_new_profiles, num_profiles_crashed, nu
         "proportion_first_time_crashes": (1.0*crash_statistics_counts[False])/num_profiles_crashed,
         "proportion_multiple_crashes": (1.0*crash_statistics_counts[True])/num_profiles_crashed,
         "proportion_new_crashes": (1.0*num_new_profiles_crashed)/num_new_profiles,
+        "proportion_new_crashes_2": (1.0*num_new_profiles_crashed_2)/num_new_profiles,
         "proportion_e10s_enabled": (1.0*e10s_counts[0])/num_profiles_crashed,
         "proportion_e10s_disabled": (1.0*e10s_counts[1])/num_profiles_crashed,
         "crash_rate_main_avg_by_user": crash_rates_avg_by_user[0]*1000,
@@ -118,7 +123,10 @@ def make_dict_results(end_date, wau7, num_new_profiles, num_profiles_crashed, nu
         "crash_rate_content_avg_by_user_and_e10s_disabled": crash_rates_avg_by_user_and_e10s[4]*1000,
         "crash_rate_plugin_avg_by_user_and_e10s_disabled": crash_rates_avg_by_user_and_e10s[5]*1000,
         "median_hours_between_crashes": df_pd.total_ssl_between_crashes.median(),
-        "geom_hours_between_crashes": geometric_mean(df_pd.total_ssl_between_crashes)
+        "geom_hours_between_crashes": geometric_mean(df_pd.total_ssl_between_crashes),
+        "proportion_new_profiles_bs": (1.0*new_tot)/wau7_new,
+        "proportion_new_crashes_bs": (1.0*new_1)/new_tot,
+        "proportion_new_crashes_bs_2": (1.0*new_2)/new_tot
     }
 
 def find_last_date(directory=".", start="fx_crashgraphs-", end=".json"):
