@@ -11,6 +11,7 @@ import os
 
 S3_BUCKET_NAME = "mozilla-metrics"
 S3_PATH = "sguha/crashgraphs/JSON/"
+LOAD_FROM_S3 = True
 
 def main_alg():
     """
@@ -34,9 +35,10 @@ def main_alg():
     setup_transform(sqlContext)
 
     # fetch files from S3
-    print "***** FETCHING FILES FROM S3...",
-    fetch_latest_from_s3(S3_BUCKET_NAME, S3_PATH)
-    print "DONE!"
+    if LOAD_FROM_S3:
+        print "***** FETCHING FILES FROM S3...",
+        fetch_latest_from_s3(S3_BUCKET_NAME, S3_PATH)
+        print "DONE!"
 
     # read and clean data; save as SQL table
     print "***** READING DATA...",
