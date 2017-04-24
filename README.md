@@ -7,14 +7,14 @@ The data for this report comes from Firefox’s built-in Telemetry data system. 
 At the end of the process, the aggregated, anonymized data is exported to a public JSON file and published [here](https://people-mozilla.org/~sguha/mozilla/crashgraphs/).
 
 # Front-end Setup
-In order to run the website locally the following commands must be run. Bower (requires node.js) can be used with this project to install front-end libraries, but a CDN is currently used instead. 
+In order to run the website locally the following commands must be run. Bower (requires node.js) can be used with this project to install front-end libraries, but a CDN is currently used instead.
 
 ```
 $ cd website
-# for python 2
-# python -m SimpleHTTPServer 8000
+$ # for python 2
+$ python -m SimpleHTTPServer 8000
 
-# for python 3
+$ # for python 3
 $ python -m http.server 8000
 ```
 
