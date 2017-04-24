@@ -87,7 +87,7 @@ def main_alg():
         print "\tActive profiles: {:,} (based on a 1% sample)".format(wau7*100)
 
         # calculate number of profiles that crashed
-        num_profiles_crashed, num_profiles_crashed_2 = get_num_crashed(aggregateDF_str, start_date_str, end_date_str)
+        num_profiles_crashed, num_profiles_crashed_2 = get_num_crashed(aggregateDF_str, start_date_str, end_date_str) # TODO: save to list
         print "\tNumber of profiles that experienced a crash: {:,} ({:.2%} of active profiles)"\
                .format(num_profiles_crashed*100, float(num_profiles_crashed) / wau7)
         print "\tNumber of profiles that experienced >= 2 crashes: {:,} ({:.2%} of active profiles)"\
@@ -97,7 +97,7 @@ def main_alg():
         num_new_profiles = get_num_new_profiles(aggregateDF_str, start_date_str, end_date_str)
         print "\tNew profiles: {:,} (based on a 1% sample) ({:.2%} of active profiles)".format(num_new_profiles*100,
                                                                                                float(num_new_profiles)/wau7)
-        num_new_profiles_crashed, num_new_profiles_crashed_2 = get_num_new_profiles_crashed(aggregateDF_str, start_date_str, end_date_str)
+        num_new_profiles_crashed, num_new_profiles_crashed_2 = get_num_new_profiles_crashed(aggregateDF_str, start_date_str, end_date_str) # TODO: save to list
         print "\tNumber of new profiles that crashed 1+ times: {:,} ({:.2%} of new profiles)"\
                .format(num_new_profiles_crashed*100, float(num_new_profiles_crashed) / num_new_profiles)
         print "\tNumber of new profiles that crashed 2+ times: {:,} ({:.2%} of new profiles)"\
@@ -175,7 +175,7 @@ def main_alg():
         summary = make_dict_results(end_date, wau7, num_new_profiles, num_profiles_crashed, num_profiles_crashed_2,
                                     num_new_profiles_crashed, num_new_profiles_crashed_2,
                                     crash_statistics_counts, crash_rates_avg_by_user, crash_rates_avg_by_user_and_e10s,
-                                    crash_statistics_pd, e10s_counts, new_statistics_counts)
+                                    crash_statistics_pd, e10s_counts, new_statistics_counts) # TODO: make all the repeat variables lists
         write_dict_json("fx_crashgraphs", summary, start_date_str, end_date_str, S3_BUCKET_NAME, S3_PATH, 1)
         print "DONE!"
 
