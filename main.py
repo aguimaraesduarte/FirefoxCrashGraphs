@@ -35,7 +35,7 @@ def main_alg():
 
     # fetch files from S3
     print "***** FETCHING FILES FROM S3...",
-    #fetch_latest_from_s3(S3_BUCKET_NAME, S3_PATH)
+    fetch_latest_from_s3(S3_BUCKET_NAME, S3_PATH)
     print "DONE!"
 
     # read and clean data; save as SQL table
@@ -87,12 +87,9 @@ def main_alg():
         print "\tActive profiles: {:,} (based on a 1% sample)".format(wau7*100)
 
         # calculate number of profiles that crashed
-        num_profiles_crashed = get_num_crashed(aggregateDF_str, start_date_str, end_date_str)
+        num_profiles_crashed, num_profiles_crashed_2 = get_num_crashed(aggregateDF_str, start_date_str, end_date_str)
         print "\tNumber of profiles that experienced a crash: {:,} ({:.2%} of active profiles)"\
                .format(num_profiles_crashed*100, float(num_profiles_crashed) / wau7)
-
-        # calculate number of profiles that crashed >= 2 times
-        num_profiles_crashed_2 = get_num_crashed_2(aggregateDF_str, start_date_str, end_date_str)
         print "\tNumber of profiles that experienced >= 2 crashes: {:,} ({:.2%} of active profiles)"\
                .format(num_profiles_crashed_2*100, float(num_profiles_crashed_2) / wau7)
 
@@ -100,10 +97,9 @@ def main_alg():
         num_new_profiles = get_num_new_profiles(aggregateDF_str, start_date_str, end_date_str)
         print "\tNew profiles: {:,} (based on a 1% sample) ({:.2%} of active profiles)".format(num_new_profiles*100,
                                                                                                float(num_new_profiles)/wau7)
-        num_new_profiles_crashed = get_num_new_profiles_crashed(aggregateDF_str, start_date_str, end_date_str)
+        num_new_profiles_crashed, num_new_profiles_crashed_2 = get_num_new_profiles_crashed(aggregateDF_str, start_date_str, end_date_str)
         print "\tNumber of new profiles that crashed 1+ times: {:,} ({:.2%} of new profiles)"\
                .format(num_new_profiles_crashed*100, float(num_new_profiles_crashed) / num_new_profiles)
-        num_new_profiles_crashed_2 = get_num_new_profiles_crashed_2(aggregateDF_str, start_date_str, end_date_str)
         print "\tNumber of new profiles that crashed 2+ times: {:,} ({:.2%} of new profiles)"\
                .format(num_new_profiles_crashed_2*100, float(num_new_profiles_crashed_2) / num_new_profiles)
 
@@ -126,12 +122,7 @@ def main_alg():
                        float(crash_statistics_counts[True])/num_profiles_crashed)
 
 
-        ##### bsmedberg stuff
-        wau7_new = get_wau7_new(aggregateDF_str, start_date_str, end_date_str)
-        print "\t\tActive profiles between {} and {}: {:,} (based on a 1% sample)"\
-              .format((str2date(end_date_str)-timedelta(days=18)).isoformat(),
-                      (str2date(end_date_str)-timedelta(days=12)).isoformat(),
-                      wau7_new*100)
+        ##### start of new profiles (3 weeks ago) that had 2 weeks to crash
         # get subset of aggregated dataframe containing only the pings for profiles that were created 2 weeks prior
         aggregate_new = aggregate_new_users(aggregateDF_str, start_date_str, end_date_str)
         new_longitudinal = make_longitudinal_new(aggregate_new)
@@ -139,19 +130,15 @@ def main_alg():
 
         # get counts of new user types
         new_statistics_counts = new_statistics.countByKey()
-        new_1 = (new_statistics_counts[1]+new_statistics_counts[2])
-        new_2 = new_statistics_counts[2]
-        new_tot = (new_statistics_counts[0]+new_statistics_counts[1]+new_statistics_counts[2])
-        print "\t\tNew profiles created between {} and {}: {:,} ({:.2%} of active profiles)"\
-              .format((str2date(end_date_str)-timedelta(days=18)).isoformat(),
-                      (str2date(end_date_str)-timedelta(days=12)).isoformat(),
-                      new_tot*100,
-                      float(new_tot) / wau7_new)
-        print "\t\tNumber of new profiles that crashed 1+ times: {:,} ({:.2%} of new users)"\
+        new__crashed = new_statistics_counts[1]
+        new_tot = new_statistics_counts[0]+new_statistics_counts[1]
+        print "\tNew profiles created between {} and {}: {:,}"\
+              .format((str2date(end_date_str)-timedelta(days=19)).isoformat(),
+                      (str2date(end_date_str)-timedelta(days=13)).isoformat(),
+                      new_tot*100)
+        print "\tNumber of new profiles that crashed 1+ times within 2 weeks of profile creation: {:,} ({:.2%} of new users)"\
                .format(new_1*100, float(new_1)/new_tot)
-        print "\t\tNumber of new profiles that crashed 2+ times: {:,} ({:.2%} of new users)"\
-               .format(new_2*100, float(new_2)/new_tot)
-        ##### end of bsmedberg stuff
+        ##### end of new profiles (3 weeks ago) that had 2 weeks to crash
 
         # calculate counts for e10s
         e10s_counts = get_e10s_counts(aggregateDF_str, start_date_str, end_date_str)
@@ -179,23 +166,23 @@ def main_alg():
         print "***** SAVING CRASH DATA TO JSON...",
         crash_statistics_pd = RDD_to_pandas(crash_statistics, "has_multiple_crashes = True", ["total_ssl_between_crashes"])
         write_col_json("fx_crashgraphs_hours", crash_statistics_pd.total_ssl_between_crashes, "hours",
-                       start_date_str, end_date_str, S3_BUCKET_NAME, S3_PATH)
+                       start_date_str, end_date_str, S3_BUCKET_NAME, S3_PATH, 1)
         print "DONE!"
 
         # get summary statistics
         print "***** SAVING RESULTS TO JSON...",
         crash_statistics_pd = RDD_to_pandas(crash_statistics) #TODO: combine the two to_pandas operations into one. This operation is expensive.
-        summary = make_dict_results(end_date, wau7, wau7_new, num_new_profiles, num_profiles_crashed, num_profiles_crashed_2,
+        summary = make_dict_results(end_date, wau7, num_new_profiles, num_profiles_crashed, num_profiles_crashed_2,
                                     num_new_profiles_crashed, num_new_profiles_crashed_2,
                                     crash_statistics_counts, crash_rates_avg_by_user, crash_rates_avg_by_user_and_e10s,
                                     crash_statistics_pd, e10s_counts, new_statistics_counts)
-        write_dict_json("fx_crashgraphs", summary, start_date_str, end_date_str, S3_BUCKET_NAME, S3_PATH)
+        write_dict_json("fx_crashgraphs", summary, start_date_str, end_date_str, S3_BUCKET_NAME, S3_PATH, 1)
         print "DONE!"
 
         print "***** MERGING SUMMARY JSON FILES...",
         # merge summary JSON files into one
         os.system('jq -c -s "[.[]|.[]]" fx_crashgraphs-*.json > "fx_crashgraphs.json"')
-        #store_latest_on_s3(S3_BUCKET_NAME, S3_PATH, "fx_crashgraphs.json")
+        store_latest_on_s3(S3_BUCKET_NAME, S3_PATH, "fx_crashgraphs.json")
         print "DONE!"
 
     print

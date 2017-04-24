@@ -158,31 +158,40 @@ def get_wau7(aggregateDF_str, start_date_str, end_date_str):
 
     return wau7[0].wau7
 
+##### write function
+# def get_num_crashed_all(aggregateDF_str, start_date_str, end_date_str):
+#     """
+#     Idea: Use CASE WHEN clauses to get 1+ and 2+ crashes with a single query.
+#     Potentially have a list of how many different #crashes we want and dynamically create the query based on that,
+#     so that if at one point we would want to get 3+ or 4+ crashes, it would be super easy.
+#     """
+#     """
+#     This function calculates and returns the total number of profiles that crashed between the two date arguments.
 
-def get_wau7_new(aggregateDF_str, start_date_str, end_date_str):
-    """
-    This function calculates and returns the weekly active users between the two date arguments.
+#     @params:
+#         aggregateDF_str: [string] name of the dataframe returned by aggregate_by_client_date_e10s(...)
+#         start_date_str: [string] start date for analysis
+#         end_date_str: [string] end date for analysis
+#     """
 
-    @params:
-        aggregateDF_str: [string] name of the dataframe returned by aggregate_by_client_date_e10s(...)
-        start_date_str: [string] start date for analysis
-        end_date_str: [string] end date for analysis
-    """
+#     query = """
+#     SELECT cid, SUM(cssm + cdc) as total_crashes
+#     FROM {table}
+#     WHERE sd BETWEEN '{start}' AND '{end}'
+#     AND ssl>0
+#     GROUP BY cid
+#     HAVING total_crashes > 0
+#     """.format(table=aggregateDF_str,
+#                start=start_date_str,
+#                end=end_date_str)
 
-    query = """
-    SELECT count(distinct cid) as wau7
-    FROM {table}
-    WHERE sd BETWEEN '{start}' AND '{end}'
-    AND ssl>0
-    """.format(table=aggregateDF_str,
-               start=date2str(str2date(end_date_str)-timedelta(days=18)),
-               end=date2str(str2date(end_date_str)-timedelta(days=12)))
+#     crashed_profiles = sqlContext.sql(query)
 
-    wau7 = sqlContext.sql(query).collect()
+#     number_of_crashed_profiles = crashed_profiles.count()
 
-    return wau7[0].wau7
+#     return number_of_crashed_profiles
 
-
+##### get rid of this function and use above once complete
 def get_num_crashed(aggregateDF_str, start_date_str, end_date_str):
     """
     This function calculates and returns the total number of profiles that crashed between the two date arguments.
@@ -208,19 +217,6 @@ def get_num_crashed(aggregateDF_str, start_date_str, end_date_str):
 
     number_of_crashed_profiles = crashed_profiles.count()
 
-    return number_of_crashed_profiles
-
-
-def get_num_crashed_2(aggregateDF_str, start_date_str, end_date_str):
-    """
-    This function calculates and returns the total number of profiles that crashed >= 2 times between the two date arguments.
-
-    @params:
-        aggregateDF_str: [string] name of the dataframe returned by aggregate_by_client_date_e10s(...)
-        start_date_str: [string] start date for analysis
-        end_date_str: [string] end date for analysis
-    """
-
     query = """
     SELECT cid, SUM(cssm + cdc) as total_crashes
     FROM {table}
@@ -236,7 +232,7 @@ def get_num_crashed_2(aggregateDF_str, start_date_str, end_date_str):
 
     number_of_crashed_profiles_2 = crashed_profiles_2.count()
 
-    return number_of_crashed_profiles_2
+    return [number_of_crashed_profiles, number_of_crashed_profiles_2]
 
 
 def get_num_new_profiles(aggregateDF_str, start_date_str, end_date_str):
@@ -267,6 +263,7 @@ def get_num_new_profiles(aggregateDF_str, start_date_str, end_date_str):
     return new_profiles[0].new_profiles
 
 
+##### same as get_new_profiles(), create new better function
 def get_num_new_profiles_crashed(aggregateDF_str, start_date_str, end_date_str):
     """
     This function calculates and returns the total number of new profiles (created between the two date arguments)
@@ -296,20 +293,6 @@ def get_num_new_profiles_crashed(aggregateDF_str, start_date_str, end_date_str):
 
     number_of_crashed_new_profiles = crashed_new_profiles.count()
 
-    return number_of_crashed_new_profiles
-
-
-def get_num_new_profiles_crashed_2(aggregateDF_str, start_date_str, end_date_str):
-    """
-    This function calculates and returns the total number of new profiles (created between the two date arguments)
-    that crashed 2+ times between the two date arguments.
-
-    @params:
-        aggregateDF_str: [string] name of the dataframe returned by aggregate_by_client_date_e10s(...)
-        start_date_str: [string] start date for analysis
-        end_date_str: [string] end date for analysis
-    """
-
     query = """
     SELECT cid, SUM(cssm + cdc) as total_crashes
     FROM {table}
@@ -328,7 +311,7 @@ def get_num_new_profiles_crashed_2(aggregateDF_str, start_date_str, end_date_str
 
     number_of_crashed_new_profiles_2 = crashed_new_profiles_2.count()
 
-    return number_of_crashed_new_profiles_2
+    return [number_of_crashed_new_profiles, number_of_crashed_new_profiles_2]
 
 
 def get_e10s_counts(aggregateDF_str, start_date_str, end_date_str):
@@ -402,7 +385,7 @@ def aggregate_subset(aggregateDF_str, start_date_str, end_date_str):
 
     return aggregate_crashed_clients_in_week
 
-
+##### new users (3 weeks)
 def aggregate_new_users(aggregateDF_str, start_date_str, end_date_str):
     """
     This function creates and returns a subset of the aggregate table containing only the rows
@@ -410,8 +393,8 @@ def aggregate_new_users(aggregateDF_str, start_date_str, end_date_str):
 
     @params:
         aggregateDF_str: [string] name of the dataframe returned by aggregate_by_client_date_e10s(...)
-        start_date_str: [string] start date for analysis (-18)
-        end_date_str: [string] end date for analysis (-12)
+        start_date_str: [string] start date for analysis (-19)
+        end_date_str: [string] end date for analysis (-13)
     """
 
     query = """
@@ -429,8 +412,8 @@ def aggregate_new_users(aggregateDF_str, start_date_str, end_date_str):
 
     USING(cid)
     """.format(lhs=aggregateDF_str,
-               start=date2int(str2date(end_date_str)) - 18,
-               end=date2int(str2date(end_date_str)) - 12,
+               start=date2int(str2date(end_date_str)) - 19,
+               end=date2int(str2date(end_date_str)) - 13,
                rhs=aggregateDF_str)
 
     aggregate_new_clients_in_week = sqlContext.sql(query)
@@ -466,7 +449,7 @@ def make_longitudinal(agg_subset):
                              .withColumnRenamed("collect_list(cdpgmp)", "cdpgmp")
     return longitudinal
 
-
+##### new users (3 weeks)
 def make_longitudinal_new(agg_subset):
     """
     This function creates and returns a longitudinal dataframe from the aggregate dataframe grouped by client_id (cid).
@@ -600,7 +583,7 @@ def mapCrashes(row):
     return (has_multiple_crashes,      # True/False
             total_ssl_between_crashes) # in hours
 
-
+##### bsmedberg
 def mapCrashes_new(row):
     """
     Applied to an RDD, this mapping function returns a tuple (group, 1) for each Row of the dataframe.
@@ -617,10 +600,9 @@ def mapCrashes_new(row):
 
     @logic:
         For each profile, determine the number of crashes in the first two weeks of activity since pcd.
-        Depending on how many crashes occurred, user is assigned to one of three groups:
+        Depending on how many crashes occurred, user is assigned to one of two groups:
             - group 0: no crashes within 14 days of pcd
             - group 1: 1 crash within 14 days of pcd
-            - group 2: 2+ crashes within 14 days of pcd (so 1+ crashes is group 1 + group 2 in the aggregation)
     """
 
     # return the sum of all crashes for a given submission date index
@@ -662,7 +644,5 @@ def mapCrashes_new(row):
     group = 0
     if tot_crashes >= 1:
         group = 1
-    if tot_crashes >= 2:
-        group = 2
 
     return (group, 1)
