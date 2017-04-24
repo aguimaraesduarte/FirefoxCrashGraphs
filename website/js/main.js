@@ -159,7 +159,7 @@ d3.queue()
     },
     {
       title: "Percentage of New Profiles that Crashed (all having 2 weeks of activity)",
-      target: "#percentage-new-crashes-bis",
+      target: "#percentage_new_crashed_bis",
       y_accessor: ["proportion_new_crashes_bis"],
       legend: ["percentage_new_crashes_bis"],
       format: "percentage",
