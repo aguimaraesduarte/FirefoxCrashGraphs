@@ -365,7 +365,7 @@ def aggregate_subset(aggregateDF_str, start_date_str, end_date_str):
 
     return aggregate_crashed_clients_in_week
 
-##### new users (3 weeks)
+
 def aggregate_new_users(aggregateDF_str, start_date_str, end_date_str):
     """
     This function creates and returns a subset of the aggregate table containing only the rows
@@ -410,36 +410,7 @@ def make_longitudinal(agg_subset):
         - crash_submit_success_main (cssm),
         - crash_detected_content (cdc),
         - crash_detected_plugin + crash_detected_gmplugin (cdpgmp)
-    for each cid.
-
-    @params:
-        agg_subset: [dataframe] dataframe returned by aggregate_subset(...)
-    """
-
-    longitudinal = agg_subset.groupBy(agg_subset.cid)\
-                             .agg({"sd": "collect_list",
-                                   "ssl": "collect_list",
-                                   "cssm": "collect_list",
-                                   "cdc": "collect_list",
-                                   "cdpgmp": "collect_list"})\
-                             .withColumnRenamed("collect_list(sd)", "sd")\
-                             .withColumnRenamed("collect_list(ssl)", "ssl")\
-                             .withColumnRenamed("collect_list(cssm)", "cssm")\
-                             .withColumnRenamed("collect_list(cdc)", "cdc")\
-                             .withColumnRenamed("collect_list(cdpgmp)", "cdpgmp")
-    return longitudinal
-
-##### new users (3 weeks)
-def make_longitudinal_new(agg_subset):
-    """
-    This function creates and returns a longitudinal dataframe from the aggregate dataframe grouped by client_id (cid).
-    Each Row from this dataframe contains the sequential information (lists) for:
-        - subsession_length (ssl),
-        - submission_date (sd),
-        - crash_submit_success_main (cssm),
-        - crash_detected_content (cdc),
-        - crash_detected_plugin + crash_detected_gmplugin (cdpgmp)
-    for each cid (+profile_creation_date (pcd))
+    for each cid and the profile_creation_date (pcd)
 
     @params:
         agg_subset: [dataframe] dataframe returned by aggregate_subset(...)
@@ -519,7 +490,7 @@ def mapCrashes(row):
     def isCrash(row, index):
         return sumCrashes(row, index) > 0
 
-    # sort row lists by submission_date
+    # sort row lists by submission_date (most recent first)
     def sort_row(row):
         zipped = sorted(zip(row.sd, row.cdc, row.cssm, row.cdpgmp, row.ssl), reverse=True)
         sd, cdc, cssm, cdpgmp, ssl = zip(*zipped)
@@ -563,7 +534,7 @@ def mapCrashes(row):
     return (has_multiple_crashes,      # True/False
             total_ssl_between_crashes) # in hours
 
-##### new users (3 weeks)
+
 def mapCrashes_new(row):
     """
     Applied to an RDD, this mapping function returns a tuple (group, 1) for each Row of the dataframe.
@@ -589,9 +560,9 @@ def mapCrashes_new(row):
     def sumCrashes(row, index):
         return sum([row.cssm[index], row.cdc[index]])
 
-    # sort row lists by submission_date
+    # sort row lists by submission_date (chronological)
     def sort_row(row):
-        zipped = sorted(zip(row.sd, row.cdc, row.cssm, row.cdpgmp, row.ssl), reverse=True)
+        zipped = sorted(zip(row.sd, row.cdc, row.cssm, row.cdpgmp, row.ssl), reverse=False)
         sd, cdc, cssm, cdpgmp, ssl = zip(*zipped)
         return Row(cid=row.cid,
                    pcd=row.pcd,

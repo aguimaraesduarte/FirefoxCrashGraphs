@@ -9,9 +9,11 @@ from math_utils import *
 
 import os
 
+# Define global variables and configurations
 S3_BUCKET_NAME = "mozilla-metrics"
 S3_PATH = "sguha/crashgraphs/JSON/"
 LOAD_FROM_S3 = True
+SAVE_TO_S3 = True
 REMOVE_LOCAL_JSON = False
 
 def main_alg():
@@ -127,7 +129,7 @@ def main_alg():
         ##### start of new profiles (3 weeks ago) that had 2 weeks to crash
         # get subset of aggregated dataframe containing only the pings for profiles that were created 3 weeks prior
         aggregate_new = aggregate_new_users(aggregateDF_str, start_date_str, end_date_str)
-        new_longitudinal = make_longitudinal_new(aggregate_new)
+        new_longitudinal = make_longitudinal(aggregate_new)
         new_statistics = new_longitudinal.rdd.map(mapCrashes_new)
 
         # get counts of new user types
@@ -168,7 +170,7 @@ def main_alg():
         print "***** SAVING CRASH DATA TO JSON...",
         crash_statistics_pd = RDD_to_pandas(crash_statistics, "has_multiple_crashes = True", ["total_ssl_between_crashes"])
         write_col_json("fx_crashgraphs_hours", crash_statistics_pd.total_ssl_between_crashes, "hours",
-                       start_date_str, end_date_str, S3_BUCKET_NAME, S3_PATH, 1)
+                       start_date_str, end_date_str, S3_BUCKET_NAME, S3_PATH, SAVE_TO_S3)
         print "DONE!"
 
         # get summary statistics
@@ -177,13 +179,14 @@ def main_alg():
         summary = make_dict_results(end_date, wau7, num_new_profiles, num_profiles_crashed, num_new_profiles_crashed, 
                                     crash_statistics_counts, crash_rates_avg_by_user, crash_rates_avg_by_user_and_e10s,
                                     crash_statistics_pd, e10s_counts, new_statistics_counts, CRASH_GRANULARITY)
-        write_dict_json("fx_crashgraphs", summary, start_date_str, end_date_str, S3_BUCKET_NAME, S3_PATH, 1)
+        write_dict_json("fx_crashgraphs", summary, start_date_str, end_date_str, S3_BUCKET_NAME, S3_PATH, SAVE_TO_S3)
         print "DONE!"
 
         print "***** MERGING SUMMARY JSON FILES...",
         # merge summary JSON files into one
         os.system('jq -c -s "[.[]|.[]]" fx_crashgraphs-*.json > "fx_crashgraphs.json"')
-        store_latest_on_s3(S3_BUCKET_NAME, S3_PATH, "fx_crashgraphs.json")
+        if SAVE_TO_S3:
+            store_latest_on_s3(S3_BUCKET_NAME, S3_PATH, "fx_crashgraphs.json")
         print "DONE!"
 
     print
