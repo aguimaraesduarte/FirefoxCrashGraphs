@@ -152,7 +152,7 @@ d3.queue()
       title: "Percentage of New Profiles that Crashed (up to 2 weeks of activity)",
       target: "#percentage-new-crashed",
       y_accessor: ["proportion_new_crashes_1", "proportion_new_crashes_2"],
-      legend: ["percentage_new_crashes", "proportion_new_2+_crashes"],
+      legend: ["percentage_new_crashes", "percentage_new_2+_crashes"],
       format: "percentage",
       description: '<ul><li><kbd>percentage_new_crashes</kbd>: out of all the new profiles created the past two weeks, how many experienced a product crash this week?</li>\
                     <li><kbd>percentage_new_2+_crashes</kbd>: out of all the new profiles created the past two weeks, how many experienced more than two product crashes this week?</li></ul>'
