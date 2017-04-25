@@ -23,9 +23,9 @@ In order to run the crash graphs analysis, the first step is SCP'ing previous js
 Once all the json files are available on the cluster, analysis is run using the command
 
 ```bash
-unset PYSPARK_DRIVER_PYTHON
-unset PYSPARK_DRIVER_PYTHON_OPTS
-spark-submit main.py
+$ unset PYSPARK_DRIVER_PYTHON
+$ unset PYSPARK_DRIVER_PYTHON_OPTS
+$ spark-submit main.py
 ```
 
 The job will read data from main_summary, calculate all the metrics, and save them to two json files:
