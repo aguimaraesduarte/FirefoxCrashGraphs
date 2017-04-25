@@ -1,5 +1,5 @@
 # Firefox Crash Graphs
-Firefox Crash Graphs is a daily (weekdays) report of crash analysis on a representative 1% sample of the population from Firefox's release channel on desktop. Main, content, and plugin crashes are collected and analyzed for this sample of the population and provide an accurate representation of the state of Firefox experience for desktop users and can be used by developers to improve it.
+[Firefox Crash Graphs](https://people-mozilla.org/~sguha/mozilla/crashgraphs/) is a daily (weekdays) report of crash analysis on a representative 1% sample of the population from Firefox's release channel on desktop. Main, content, and plugin crashes are collected and analyzed for this sample of the population and provide an accurate representation of the state of Firefox experience for desktop users and can be used by developers to improve it.
 
 # How is the report created?
 The data for this report comes from Firefox’s built-in Telemetry data system. Firefox automatically collects information about crashes and sends this to Mozilla roughly daily, unless users disable this collection. This raw data is processed to remove corrupted or inaccurate entries and is then aggregated. This aggregation anonymizes the data, removing indicators that might be used to identify individual users.
@@ -7,11 +7,15 @@ The data for this report comes from Firefox’s built-in Telemetry data system. 
 At the end of the process, the aggregated, anonymized data is exported to a public JSON file and published [here](https://people-mozilla.org/~sguha/mozilla/crashgraphs/).
 
 # Front-end Setup
-In order to run the website locally the following commands must be run (`http-server` is a `node.js` dependency of this project). Installation of this dependency are well documented and found online. Bower can be used with this project, but a CDN is currently used.
+In order to run the website locally the following commands must be run. Bower (requires node.js) can be used with this project to install front-end libraries, but a CDN is currently used instead.
 
 ```
 $ cd website
-$ http-server .
+$ # for python 2
+$ python -m SimpleHTTPServer 8000
+
+$ # for python 3
+$ python -m http.server 8000
 ```
 
 # Running the files
@@ -21,7 +25,7 @@ Once all the json files are available on the cluster, analysis is run using the 
 ```bash
 unset PYSPARK_DRIVER_PYTHON
 unset PYSPARK_DRIVER_PYTHON_OPTS
-spark-submit main.py --py-files *.py
+spark-submit main.py
 ```
 
 The job will read data from main_summary, calculate all the metrics, and save them to two json files:
@@ -35,7 +39,6 @@ The main script will try to find the last week that was analyzed and run the ana
 
 # TODO
 
-- Setup S3 folder to save incremental JSON results + implement reading/saving to S3
 - Add to Airflow to run after specific jobs
 
 # About us
