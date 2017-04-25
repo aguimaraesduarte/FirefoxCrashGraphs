@@ -158,86 +158,62 @@ def get_wau7(aggregateDF_str, start_date_str, end_date_str):
 
     return wau7[0].wau7
 
-##### write function
-# def get_num_crashed_all(aggregateDF_str, start_date_str, end_date_str):
-#     """
-#     Idea: Use CASE WHEN clauses to get 1+ and 2+ crashes with a single query.
-#     Potentially have a list of how many different #crashes we want and dynamically create the query based on that,
-#     so that if at one point we would want to get 3+ or 4+ crashes, it would be super easy.
-#     """
-#     """
-#     This function calculates and returns the total number of profiles that crashed between the two date arguments.
 
-#     @params:
-#         aggregateDF_str: [string] name of the dataframe returned by aggregate_by_client_date_e10s(...)
-#         start_date_str: [string] start date for analysis
-#         end_date_str: [string] end date for analysis
-#     """
-
-#     query = """
-#     SELECT cid, SUM(cssm + cdc) as total_crashes
-#     FROM {table}
-#     WHERE sd BETWEEN '{start}' AND '{end}'
-#     AND ssl>0
-#     GROUP BY cid
-#     HAVING total_crashes > 0
-#     """.format(table=aggregateDF_str,
-#                start=start_date_str,
-#                end=end_date_str)
-
-#     crashed_profiles = sqlContext.sql(query)
-
-#     number_of_crashed_profiles = crashed_profiles.count()
-
-#     return number_of_crashed_profiles
-
-##### get rid of this function and use above once complete
-def get_num_crashed(aggregateDF_str, start_date_str, end_date_str):
+def get_num_crashed(aggregateDF_str, start_date_str, end_date_str, l_crashes=[1,2]):
     """
-    This function calculates and returns the total number of profiles that crashed between the two date arguments.
+    This function calculates and returns the total number of profiles that crashed n+ times between the two date arguments,
+    where n is specified in the arguments.
 
     @params:
         aggregateDF_str: [string] name of the dataframe returned by aggregate_by_client_date_e10s(...)
         start_date_str: [string] start date for analysis
         end_date_str: [string] end date for analysis
+        l_crashes: [list] list of crashes to get. i.e., for 1+ and 2+ crashes, l_crashes=[1,2] (default)
+
+    @return:
+        [list] a list of each number of profiles that crashed n+ times accorting to the input parameter.
     """
 
+    tup_crashes = sorted(set([(1,1), (2,2)] + [(i,i) for i in l_crashes])) # always have at least 1 and 2
+
+    case_statement = "CASE WHEN total_crashes >= %d THEN 1 ELSE 0 END AS case%d"
+    case_statements = [case_statement%(i) for i in tup_crashes]
+    str_case_statements = ", ".join(case_statements)
+
+    sum_statement = "SUM(case%d) AS total_crashes%d"
+    sum_statements = [sum_statement%(i) for i in tup_crashes]
+    str_sum_statements = ", ".join(sum_statements)
+
     query = """
-    SELECT cid, SUM(cssm + cdc) as total_crashes
-    FROM {table}
-    WHERE sd BETWEEN '{start}' AND '{end}'
-    AND ssl>0
-    GROUP BY cid
-    HAVING total_crashes > 0
+    SELECT {sums}
+    FROM
+    (
+        SELECT cid, {cases}
+        FROM
+        (
+            SELECT cid, SUM(cssm + cdc) AS total_crashes
+            FROM {table}
+            WHERE sd BETWEEN '{start}' AND '{end}'
+            AND ssl>0
+            GROUP BY cid
+        )
+    )
     """.format(table=aggregateDF_str,
                start=start_date_str,
-               end=end_date_str)
+               end=end_date_str,
+               sums=str_sum_statements,
+               cases=str_case_statements)
 
     crashed_profiles = sqlContext.sql(query)
 
-    number_of_crashed_profiles = crashed_profiles.count()
+    number_of_crashed_profiles = crashed_profiles.collect()
 
-    query = """
-    SELECT cid, SUM(cssm + cdc) as total_crashes
-    FROM {table}
-    WHERE sd BETWEEN '{start}' AND '{end}'
-    AND ssl>0
-    GROUP BY cid
-    HAVING total_crashes > 1
-    """.format(table=aggregateDF_str,
-               start=start_date_str,
-               end=end_date_str)
-
-    crashed_profiles_2 = sqlContext.sql(query)
-
-    number_of_crashed_profiles_2 = crashed_profiles_2.count()
-
-    return [number_of_crashed_profiles, number_of_crashed_profiles_2]
+    return [num_crashed for num_crashed in number_of_crashed_profiles[0]]
 
 
 def get_num_new_profiles(aggregateDF_str, start_date_str, end_date_str):
     """
-    This function calculates and returns the number of new profiles (created between the two date arguments) that
+    This function calculates and returns the number of new profiles (up to 2 weeks of activity) that
     were active between the two date arguments.
 
     @params:
@@ -263,55 +239,59 @@ def get_num_new_profiles(aggregateDF_str, start_date_str, end_date_str):
     return new_profiles[0].new_profiles
 
 
-##### same as get_new_profiles(), create new better function
-def get_num_new_profiles_crashed(aggregateDF_str, start_date_str, end_date_str):
+def get_num_new_profiles_crashed(aggregateDF_str, start_date_str, end_date_str, l_crashes=[1,2]):
     """
-    This function calculates and returns the total number of new profiles (created between the two date arguments)
-    that crashed between the two date arguments.
+    This function calculates and returns the total number of new profiles (up to 2 weeks of activity)
+    that crashed n+ between the two date arguments, where n is specified by the arguments.
 
     @params:
         aggregateDF_str: [string] name of the dataframe returned by aggregate_by_client_date_e10s(...)
         start_date_str: [string] start date for analysis
         end_date_str: [string] end date for analysis
+        l_crashes: [list] list of crashes to get. i.e., for 1+ and 2+ crashes, l_crashes=[1,2] (default)
+
+    @return:
+        [list] a list of each number of new profiles that crashed n+ times accorting to the input parameter.
     """
 
-    query = """
-    SELECT cid, SUM(cssm + cdc) as total_crashes
-    FROM {table}
-    WHERE sd BETWEEN '{start_sd}' AND '{end_sd}'
-    AND pcd BETWEEN {start_pcd} AND {end_pcd}
-    AND ssl>0
-    GROUP BY cid
-    HAVING total_crashes > 0
-    """.format(table=aggregateDF_str,
-               start_sd=start_date_str,
-               end_sd=end_date_str,
-               start_pcd=date2int(str2date(start_date_str))-7,
-               end_pcd=date2int(str2date(end_date_str)))
+    tup_crashes = sorted(set([(1,1), (2,2)] + [(i,i) for i in l_crashes])) # always have at least 1 and 2
 
-    crashed_new_profiles = sqlContext.sql(query)
+    case_statement = "CASE WHEN total_crashes >= %d THEN 1 ELSE 0 END AS case%d"
+    case_statements = [case_statement%(i) for i in tup_crashes]
+    str_case_statements = ", ".join(case_statements)
 
-    number_of_crashed_new_profiles = crashed_new_profiles.count()
+    sum_statement = "SUM(case%d) AS total_crashes%d"
+    sum_statements = [sum_statement%(i) for i in tup_crashes]
+    str_sum_statements = ", ".join(sum_statements)
 
     query = """
-    SELECT cid, SUM(cssm + cdc) as total_crashes
-    FROM {table}
-    WHERE sd BETWEEN '{start_sd}' AND '{end_sd}'
-    AND pcd BETWEEN {start_pcd} AND {end_pcd}
-    AND ssl>0
-    GROUP BY cid
-    HAVING total_crashes > 1
+    SELECT {sums}
+    FROM
+    (
+        SELECT cid, {cases}
+        FROM
+        (
+            SELECT cid, SUM(cssm + cdc) AS total_crashes
+            FROM {table}
+            WHERE sd BETWEEN '{start}' AND '{end}'
+            AND pcd BETWEEN {start_pcd} AND {end_pcd}
+            AND ssl>0
+            GROUP BY cid
+        )
+    )
     """.format(table=aggregateDF_str,
-               start_sd=start_date_str,
-               end_sd=end_date_str,
+               start=start_date_str,
+               end=end_date_str,
                start_pcd=date2int(str2date(start_date_str))-7,
-               end_pcd=date2int(str2date(end_date_str)))
+               end_pcd=date2int(str2date(end_date_str)),
+               sums=str_sum_statements,
+               cases=str_case_statements)
 
-    crashed_new_profiles_2 = sqlContext.sql(query)
+    crashed_profiles = sqlContext.sql(query)
 
-    number_of_crashed_new_profiles_2 = crashed_new_profiles_2.count()
+    number_of_crashed_profiles = crashed_profiles.collect()
 
-    return [number_of_crashed_new_profiles, number_of_crashed_new_profiles_2]
+    return [num_crashed for num_crashed in number_of_crashed_profiles[0]]
 
 
 def get_e10s_counts(aggregateDF_str, start_date_str, end_date_str):

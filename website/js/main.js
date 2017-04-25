@@ -108,7 +108,7 @@ d3.queue()
     {
       title: "Percentage of Weekly Active Users that Crashed",
       target: "#percentage-crashed",
-      y_accessor: ["proportion_wau_crashes", "proportion_wau_crashes_2"],
+      y_accessor: ["proportion_wau_crashes_1", "proportion_wau_crashes_2"],
       legend: ["wau_crashes", "wau_2+_crashes"],
       format: "percentage",
       description: '<ul><li><kbd>wau_crashes</kbd>: out of all weekly active users, how many experienced a product crash that week?</li>\
@@ -151,7 +151,7 @@ d3.queue()
     {
       title: "Percentage of New Profiles that Crashed (up to 2 weeks of activity)",
       target: "#percentage-new-crashed",
-      y_accessor: ["proportion_new_crashes", "proportion_new_crashes_2"],
+      y_accessor: ["proportion_new_crashes_1", "proportion_new_crashes_2"],
       legend: ["percentage_new_crashes", "proportion_new_2+_crashes"],
       format: "percentage",
       description: '<ul><li><kbd>percentage_new_crashes</kbd>: out of all the new profiles created the past two weeks, how many experienced a product crash this week?</li>\
@@ -159,7 +159,7 @@ d3.queue()
     },
     {
       title: "Percentage of New Profiles that Crashed (all having 2 weeks of activity)",
-      target: "#percentage_new_crashed_bis",
+      target: "#percentage-new-crashed-bis",
       y_accessor: ["proportion_new_crashes_bis"],
       legend: ["percentage_new_crashes_bis"],
       format: "percentage",
@@ -351,39 +351,6 @@ $('.split-by-crash button').click(function(){
   // change button state
   $(this).addClass('active').siblings().removeClass('active');
 });
-
-
-// function updateWAUCrashGraph(category){
-//   // change the yaccessors
-//   if (category=="1+"){
-//     y_accessor = ["proportion_wau_crashes"],
-//     legend = ["wau_crashes"]
-//   } else if (category=="2+"){
-//     y_accessor = ["proportion_wau_crashes_2"],
-//     legend = ["wau_2+_crashes"]
-//   } else {
-//     y_accessor = ["proportion_wau_crashes", "proportion_wau_crashes_2"],
-//     legend = ["wau_crashes", "wau_2+_crashes"]
-//   }
-//   // update the charts
-//   // TODO: get chart by id
-//   global.charts[1].y_accessor = y_accessor;
-//   global.charts[1].legend = legend;
-
-//   // not sure what this does
-//   delete global.charts[1].xax_format;
-
-//   MG.data_graphic(global.charts[1]);
-// }
-
-// $('.split-by-wau-crash button').click(function(){
-//   var category = $(this).data('category');
-//   updateWAUCrashGraph(category)
-
-//   // change button state
-//   $(this).addClass('active').siblings().removeClass('active');
-// });
-
 
 
 // enable all tooltips

@@ -89,10 +89,9 @@ def write_dict_json(fn, res_data, start_date_str, end_date_str,
     if save_to_s3:
         store_latest_on_s3(bucket_name, s3_data_path, file_name)
 
-def make_dict_results(end_date, wau7, num_new_profiles, num_profiles_crashed, num_profiles_crashed_2,
-                      num_new_profiles_crashed, num_new_profiles_crashed_2, 
+def make_dict_results(end_date, wau7, num_new_profiles, num_profiles_crashed, num_new_profiles_crashed,
                       crash_statistics_counts, crash_rates_avg_by_user, crash_rates_avg_by_user_and_e10s,
-                      df_pd, e10s_counts, new_statistics_counts):
+                      df_pd, e10s_counts, new_statistics_counts, granularity):
     """
     This function returns a dictionary with a summary of the results to output a json file.
 
@@ -103,30 +102,39 @@ def make_dict_results(end_date, wau7, num_new_profiles, num_profiles_crashed, nu
     new_crashed = new_statistics_counts[1]
     new_tot = new_statistics_counts[0]+new_statistics_counts[1]
 
-    return {
-        "date": end_date.strftime("%Y-%m-%d"),
-        "proportion_wau_crashes": (1.0*num_profiles_crashed)/wau7,
-        "proportion_wau_crashes_2": (1.0*num_profiles_crashed_2)/wau7,
-        "proportion_new_profiles": (1.0*num_new_profiles)/wau7,
-        "proportion_first_time_crashes": (1.0*crash_statistics_counts[False])/num_profiles_crashed,
-        "proportion_multiple_crashes": (1.0*crash_statistics_counts[True])/num_profiles_crashed,
-        "proportion_new_crashes": (1.0*num_new_profiles_crashed)/num_new_profiles,
-        "proportion_new_crashes_2": (1.0*num_new_profiles_crashed_2)/num_new_profiles,
-        "proportion_e10s_enabled": (1.0*e10s_counts[0])/num_profiles_crashed,
-        "proportion_e10s_disabled": (1.0*e10s_counts[1])/num_profiles_crashed,
-        "crash_rate_main_avg_by_user": crash_rates_avg_by_user[0]*1000,
-        "crash_rate_content_avg_by_user": crash_rates_avg_by_user[1]*1000,
-        "crash_rate_plugin_avg_by_user": crash_rates_avg_by_user[2]*1000,
-        "crash_rate_main_avg_by_user_and_e10s_enabled": crash_rates_avg_by_user_and_e10s[0]*1000,
-        "crash_rate_content_avg_by_user_and_e10s_enabled": crash_rates_avg_by_user_and_e10s[1]*1000,
-        "crash_rate_plugin_avg_by_user_and_e10s_enabled": crash_rates_avg_by_user_and_e10s[2]*1000,
-        "crash_rate_main_avg_by_user_and_e10s_disabled": crash_rates_avg_by_user_and_e10s[3]*1000,
-        "crash_rate_content_avg_by_user_and_e10s_disabled": crash_rates_avg_by_user_and_e10s[4]*1000,
-        "crash_rate_plugin_avg_by_user_and_e10s_disabled": crash_rates_avg_by_user_and_e10s[5]*1000,
-        "median_hours_between_crashes": df_pd.total_ssl_between_crashes.median(),
-        "geom_hours_between_crashes": geometric_mean(df_pd.total_ssl_between_crashes),
-        "proportion_new_crashes_bis": (1.0*new_crashed)/new_tot
-    }
+    proportion_wau_crashes_template = "proportion_wau_crashes_%d"
+    profiles_crashed = dict(zip([proportion_wau_crashes_template%i for i in granularity],
+                                [(1.0*num_crashed/wau7) for num_crashed in num_profiles_crashed]))
+    proportion_new_crashes_template = "proportion_new_crashes_%d"
+    new_profiles_crashed = dict(zip([proportion_new_crashes_template%i for i in granularity],
+                                        [(1.0*num_crashed/num_new_profiles) for num_crashed in num_new_profiles_crashed]))
+
+    return_dict = profiles_crashed.copy()
+    return_dict.update(new_profiles_crashed)
+    return_dict.update(
+        {
+            "date": end_date.strftime("%Y-%m-%d"),
+            "proportion_new_profiles": (1.0*num_new_profiles)/wau7,
+            "proportion_first_time_crashes": (1.0*crash_statistics_counts[False])/num_profiles_crashed[0],
+            "proportion_multiple_crashes": (1.0*crash_statistics_counts[True])/num_profiles_crashed[0],
+            "proportion_e10s_enabled": (1.0*e10s_counts[0])/num_profiles_crashed[0],
+            "proportion_e10s_disabled": (1.0*e10s_counts[1])/num_profiles_crashed[0],
+            "crash_rate_main_avg_by_user": crash_rates_avg_by_user[0]*1000,
+            "crash_rate_content_avg_by_user": crash_rates_avg_by_user[1]*1000,
+            "crash_rate_plugin_avg_by_user": crash_rates_avg_by_user[2]*1000,
+            "crash_rate_main_avg_by_user_and_e10s_enabled": crash_rates_avg_by_user_and_e10s[0]*1000,
+            "crash_rate_content_avg_by_user_and_e10s_enabled": crash_rates_avg_by_user_and_e10s[1]*1000,
+            "crash_rate_plugin_avg_by_user_and_e10s_enabled": crash_rates_avg_by_user_and_e10s[2]*1000,
+            "crash_rate_main_avg_by_user_and_e10s_disabled": crash_rates_avg_by_user_and_e10s[3]*1000,
+            "crash_rate_content_avg_by_user_and_e10s_disabled": crash_rates_avg_by_user_and_e10s[4]*1000,
+            "crash_rate_plugin_avg_by_user_and_e10s_disabled": crash_rates_avg_by_user_and_e10s[5]*1000,
+            "median_hours_between_crashes": df_pd.total_ssl_between_crashes.median(),
+            "geom_hours_between_crashes": geometric_mean(df_pd.total_ssl_between_crashes),
+            "proportion_new_crashes_bis": (1.0*new_crashed)/new_tot
+        }
+    )
+
+    return return_dict
 
 def find_last_date(directory=".", start="fx_crashgraphs-", end=".json"):
     """

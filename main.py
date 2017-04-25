@@ -90,21 +90,20 @@ def main_alg():
         print "\tActive profiles: {:,} (based on a 1% sample)".format(wau7*100)
 
         # calculate number of profiles that crashed
-        num_profiles_crashed, num_profiles_crashed_2 = get_num_crashed(aggregateDF_str, start_date_str, end_date_str) # TODO: save to list
-        print "\tNumber of profiles that experienced a crash: {:,} ({:.2%} of active profiles)"\
-               .format(num_profiles_crashed*100, float(num_profiles_crashed) / wau7)
-        print "\tNumber of profiles that experienced >= 2 crashes: {:,} ({:.2%} of active profiles)"\
-               .format(num_profiles_crashed_2*100, float(num_profiles_crashed_2) / wau7)
+        CRASH_GRANULARITY = [1, 2] # specify the granularity for the crash rates (default: 1+ and 2+ crashes)
+        num_profiles_crashed = get_num_crashed(aggregateDF_str, start_date_str, end_date_str, CRASH_GRANULARITY)
+        for i, crash in enumerate(CRASH_GRANULARITY):
+            print "\tNumber of profiles that experienced {}+ crashes: {:,} ({:.2%} of active profiles)"\
+                  .format(crash, num_profiles_crashed[i]*100, float(num_profiles_crashed[i]) / wau7)
 
         # calculate new profiles and proportion crashed
         num_new_profiles = get_num_new_profiles(aggregateDF_str, start_date_str, end_date_str)
         print "\tNew profiles: {:,} (based on a 1% sample) ({:.2%} of active profiles)".format(num_new_profiles*100,
                                                                                                float(num_new_profiles)/wau7)
-        num_new_profiles_crashed, num_new_profiles_crashed_2 = get_num_new_profiles_crashed(aggregateDF_str, start_date_str, end_date_str) # TODO: save to list
-        print "\tNumber of new profiles that crashed 1+ times: {:,} ({:.2%} of new profiles)"\
-               .format(num_new_profiles_crashed*100, float(num_new_profiles_crashed) / num_new_profiles)
-        print "\tNumber of new profiles that crashed 2+ times: {:,} ({:.2%} of new profiles)"\
-               .format(num_new_profiles_crashed_2*100, float(num_new_profiles_crashed_2) / num_new_profiles)
+        num_new_profiles_crashed = get_num_new_profiles_crashed(aggregateDF_str, start_date_str, end_date_str, CRASH_GRANULARITY)
+        for i, crash in enumerate(CRASH_GRANULARITY):
+            print "\tNumber of new profiles that experienced {}+ crashes: {:,} ({:.2%} of new profiles)"\
+                  .format(crash, num_new_profiles_crashed[i]*100, float(num_new_profiles_crashed[i]) / num_new_profiles)
 
         # get subset of aggregated dataframe containing only the pings for profiles that crashed
         aggregate_crashed = aggregate_subset(aggregateDF_str, start_date_str, end_date_str)
@@ -119,10 +118,10 @@ def main_alg():
         crash_statistics_counts = crash_statistics.countByKey()
         print "\tNumber of profiles that crashed for the first time: {:,} ({:.2%} of crashed profiles)"\
                .format(crash_statistics_counts[False]*100,
-                      float(crash_statistics_counts[False])/num_profiles_crashed)
+                      float(crash_statistics_counts[False])/num_profiles_crashed[0])
         print "\tNumber of profiles that crashed and had a previous crash: {:,} ({:.2%} of crashed profiles)"\
                .format(crash_statistics_counts[True]*100,
-                       float(crash_statistics_counts[True])/num_profiles_crashed)
+                       float(crash_statistics_counts[True])/num_profiles_crashed[0])
 
 
         ##### start of new profiles (3 weeks ago) that had 2 weeks to crash
@@ -146,9 +145,9 @@ def main_alg():
         # calculate counts for e10s
         e10s_counts = get_e10s_counts(aggregateDF_str, start_date_str, end_date_str)
         print "\tNumber of profiles that have e10s enabled: {:,} ({:.2%} of crashed profiles)"\
-              .format(e10s_counts[0]*100, float(e10s_counts[0])/num_profiles_crashed)
+              .format(e10s_counts[0]*100, float(e10s_counts[0])/num_profiles_crashed[0])
         print "\tNumber of profiles that have e10s disabled: {:,} ({:.2%} of crashed profiles)"\
-              .format(e10s_counts[1]*100, float(e10s_counts[1])/num_profiles_crashed)
+              .format(e10s_counts[1]*100, float(e10s_counts[1])/num_profiles_crashed[0])
 
         # calculate crash rates
         crash_rates_avg_by_user = get_crash_rates_by_user(aggregateDF_str, start_date_str, end_date_str)
@@ -175,10 +174,9 @@ def main_alg():
         # get summary statistics
         print "***** SAVING RESULTS TO JSON...",
         crash_statistics_pd = RDD_to_pandas(crash_statistics) #TODO: combine the two to_pandas operations into one. This operation is expensive.
-        summary = make_dict_results(end_date, wau7, num_new_profiles, num_profiles_crashed, num_profiles_crashed_2,
-                                    num_new_profiles_crashed, num_new_profiles_crashed_2,
+        summary = make_dict_results(end_date, wau7, num_new_profiles, num_profiles_crashed, num_new_profiles_crashed, 
                                     crash_statistics_counts, crash_rates_avg_by_user, crash_rates_avg_by_user_and_e10s,
-                                    crash_statistics_pd, e10s_counts, new_statistics_counts) # TODO: make all the repeat variables lists
+                                    crash_statistics_pd, e10s_counts, new_statistics_counts, CRASH_GRANULARITY)
         write_dict_json("fx_crashgraphs", summary, start_date_str, end_date_str, S3_BUCKET_NAME, S3_PATH, 1)
         print "DONE!"
 
