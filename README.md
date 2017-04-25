@@ -35,7 +35,6 @@ The main script will try to find the last week that was analyzed and run the ana
 
 # TODO
 
-- Setup S3 folder to save incremental JSON results + implement reading/saving to S3
 - Add to Airflow to run after specific jobs
 
 # About us
