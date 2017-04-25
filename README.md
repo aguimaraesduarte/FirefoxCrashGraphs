@@ -9,7 +9,7 @@ At the end of the process, the aggregated, anonymized data is exported to a publ
 # Front-end Setup
 In order to run the website locally the following commands must be run. Bower (requires node.js) can be used with this project to install front-end libraries, but a CDN is currently used instead.
 
-```
+```bash
 $ cd website
 $ # for python 2
 $ python -m SimpleHTTPServer 8000
@@ -23,9 +23,9 @@ In order to run the crash graphs analysis, the first step is SCP'ing previous js
 Once all the json files are available on the cluster, analysis is run using the command
 
 ```bash
-unset PYSPARK_DRIVER_PYTHON
-unset PYSPARK_DRIVER_PYTHON_OPTS
-spark-submit main.py
+$ unset PYSPARK_DRIVER_PYTHON
+$ unset PYSPARK_DRIVER_PYTHON_OPTS
+$ spark-submit main.py
 ```
 
 The job will read data from main_summary, calculate all the metrics, and save them to two json files:
