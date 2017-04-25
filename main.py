@@ -12,6 +12,7 @@ import os
 S3_BUCKET_NAME = "mozilla-metrics"
 S3_PATH = "sguha/crashgraphs/JSON/"
 LOAD_FROM_S3 = True
+REMOVE_LOCAL_JSON = False
 
 def main_alg():
     """
@@ -125,7 +126,7 @@ def main_alg():
 
 
         ##### start of new profiles (3 weeks ago) that had 2 weeks to crash
-        # get subset of aggregated dataframe containing only the pings for profiles that were created 2 weeks prior
+        # get subset of aggregated dataframe containing only the pings for profiles that were created 3 weeks prior
         aggregate_new = aggregate_new_users(aggregateDF_str, start_date_str, end_date_str)
         new_longitudinal = make_longitudinal_new(aggregate_new)
         new_statistics = new_longitudinal.rdd.map(mapCrashes_new)
@@ -188,8 +189,10 @@ def main_alg():
         print "DONE!"
 
     print
+    
     # remove local json files
-    #os.system('rm *.json')
+    if REMOVE_LOCAL_JSON:
+        os.system('rm *.json')
     print "DONE!"
 
 if __name__ == '__main__':

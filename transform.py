@@ -389,7 +389,7 @@ def aggregate_subset(aggregateDF_str, start_date_str, end_date_str):
 def aggregate_new_users(aggregateDF_str, start_date_str, end_date_str):
     """
     This function creates and returns a subset of the aggregate table containing only the rows
-    concerning profiles that were created two weeks prior to start_date_str.
+    concerning profiles that were created 3 weeks prior to end_date_str.
 
     @params:
         aggregateDF_str: [string] name of the dataframe returned by aggregate_by_client_date_e10s(...)
@@ -583,7 +583,7 @@ def mapCrashes(row):
     return (has_multiple_crashes,      # True/False
             total_ssl_between_crashes) # in hours
 
-##### bsmedberg
+##### new users (3 weeks)
 def mapCrashes_new(row):
     """
     Applied to an RDD, this mapping function returns a tuple (group, 1) for each Row of the dataframe.
