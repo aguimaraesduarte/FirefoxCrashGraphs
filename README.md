@@ -25,7 +25,7 @@ Once all the json files are available on the cluster, analysis is run using the 
 ```bash
 unset PYSPARK_DRIVER_PYTHON
 unset PYSPARK_DRIVER_PYTHON_OPTS
-spark-submit main.py --py-files *.py
+spark-submit main.py
 ```
 
 The job will read data from main_summary, calculate all the metrics, and save them to two json files:
@@ -39,7 +39,6 @@ The main script will try to find the last week that was analyzed and run the ana
 
 # TODO
 
-- Setup S3 folder to save incremental JSON results + implement reading/saving to S3
 - Add to Airflow to run after specific jobs
 
 # About us

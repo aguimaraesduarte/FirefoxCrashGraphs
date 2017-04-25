@@ -149,13 +149,21 @@ d3.queue()
       description: '<ul><li><kbd>new_profiles</kbd>: out of all weekly active users, how many created their profile within the past two weeks?</li></ul>'
     },
     {
-      title: "Percentage of New Profiles that Crashed",
+      title: "Percentage of New Profiles that Crashed (up to 2 weeks of activity)",
       target: "#percentage-new-crashed",
-      y_accessor: ["proportion_new_crashes"],
-      legend: ["percentage_new_crashes"],
+      y_accessor: ["proportion_new_crashes", "proportion_new_crashes_2"],
+      legend: ["percentage_new_crashes", "proportion_new_2+_crashes"],
       format: "percentage",
-      aggregate_rollover: false,
-      description: '<ul><li><kbd>percentage_new_crashes</kbd>: out of all the new profiles created the past two weeks, how many experienced a product crash this week?</li></ul>'
+      description: '<ul><li><kbd>percentage_new_crashes</kbd>: out of all the new profiles created the past two weeks, how many experienced a product crash this week?</li>\
+                    <li><kbd>percentage_new_2+_crashes</kbd>: out of all the new profiles created the past two weeks, how many experienced more than two product crashes this week?</li></ul>'
+    },
+    {
+      title: "Percentage of New Profiles that Crashed (all having 2 weeks of activity)",
+      target: "#percentage_new_crashed_bis",
+      y_accessor: ["proportion_new_crashes_bis"],
+      legend: ["percentage_new_crashes_bis"],
+      format: "percentage",
+      description: '<ul><li><kbd>percentage_new_crashes_bis</kbd>: out of all the new profiles created three weeks ago, how many experienced a product crash in their first two weeks of activity?</li></ul>'
     },
     {
       title: "Hours Between Crashes",
