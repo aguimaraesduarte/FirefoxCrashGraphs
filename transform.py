@@ -213,8 +213,8 @@ def get_num_crashed(aggregateDF_str, start_date_str, end_date_str, l_crashes=[1,
 
 def get_num_new_profiles(aggregateDF_str, start_date_str, end_date_str):
     """
-    This function calculates and returns the number of new profiles (up to 2 weeks of activity) that
-    were active between the two date arguments.
+    This function calculates and returns the number of new profiles (created between the two date arguments)
+    that were active between the two date arguments.
 
     @params:
         aggregateDF_str: [string] name of the dataframe returned by aggregate_by_client_date_e10s(...)
@@ -231,7 +231,7 @@ def get_num_new_profiles(aggregateDF_str, start_date_str, end_date_str):
     """.format(table=aggregateDF_str,
                start_sd=start_date_str,
                end_sd=end_date_str,
-               start_pcd=date2int(str2date(start_date_str))-7,
+               start_pcd=date2int(str2date(start_date_str)),
                end_pcd=date2int(str2date(end_date_str)))
 
     new_profiles = sqlContext.sql(query).collect()
@@ -241,7 +241,7 @@ def get_num_new_profiles(aggregateDF_str, start_date_str, end_date_str):
 
 def get_num_new_profiles_crashed(aggregateDF_str, start_date_str, end_date_str, l_crashes=[1,2]):
     """
-    This function calculates and returns the total number of new profiles (up to 2 weeks of activity)
+    This function calculates and returns the total number of new profiles (created between the two date arguments)
     that crashed n+ between the two date arguments, where n is specified by the arguments.
 
     @params:
@@ -282,7 +282,7 @@ def get_num_new_profiles_crashed(aggregateDF_str, start_date_str, end_date_str, 
     """.format(table=aggregateDF_str,
                start=start_date_str,
                end=end_date_str,
-               start_pcd=date2int(str2date(start_date_str))-7,
+               start_pcd=date2int(str2date(start_date_str)),
                end_pcd=date2int(str2date(end_date_str)),
                sums=str_sum_statements,
                cases=str_case_statements)
