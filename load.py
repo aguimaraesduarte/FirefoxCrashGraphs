@@ -91,7 +91,8 @@ def write_dict_json(fn, res_data, start_date_str, end_date_str,
 
 def make_dict_results(end_date, wau7, num_new_profiles, num_profiles_crashed, num_new_profiles_crashed,
                       crash_statistics_counts, crash_rates_avg_by_user, crash_rates_avg_by_user_and_e10s,
-                      df_pd, e10s_counts, new_statistics_counts, granularity):
+                      df_pd, e10s_counts, new_statistics_counts, num_new_profiles_crashed_second_week,
+                      granularity):
     """
     This function returns a dictionary with a summary of the results to output a json file.
 
@@ -130,7 +131,8 @@ def make_dict_results(end_date, wau7, num_new_profiles, num_profiles_crashed, nu
             "crash_rate_plugin_avg_by_user_and_e10s_disabled": crash_rates_avg_by_user_and_e10s[5]*1000,
             "median_hours_between_crashes": df_pd.total_ssl_between_crashes.median(),
             "geom_hours_between_crashes": geometric_mean(df_pd.total_ssl_between_crashes),
-            "proportion_new_crashes_bis": (1.0*new_crashed)/new_tot
+            "proportion_new_crashes_bis": (1.0*new_crashed)/new_tot,
+            "proportion_new_crashes_bis_second_week": (1.0*num_new_profiles_crashed_second_week)/new_tot
         }
     )
 

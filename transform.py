@@ -1,5 +1,6 @@
 from pyspark.sql.functions import collect_list
 from pyspark.sql import Row
+from pandas import DataFrame
 
 from date_utils import *
 
@@ -373,8 +374,8 @@ def aggregate_new_users(aggregateDF_str, start_date_str, end_date_str):
 
     @params:
         aggregateDF_str: [string] name of the dataframe returned by aggregate_by_client_date_e10s(...)
-        start_date_str: [string] start date for analysis (-19)
-        end_date_str: [string] end date for analysis (-13)
+        start_date_str: [string] start date for analysis (-14)
+        end_date_str: [string] end date for analysis (-14)
     """
 
     query = """
@@ -392,8 +393,8 @@ def aggregate_new_users(aggregateDF_str, start_date_str, end_date_str):
 
     USING(cid)
     """.format(lhs=aggregateDF_str,
-               start=date2int(str2date(end_date_str)) - 19,
-               end=date2int(str2date(end_date_str)) - 13,
+               start=date2int(str2date(start_date_str)) - 14,
+               end=date2int(str2date(end_date_str)) - 14,
                rhs=aggregateDF_str)
 
     aggregate_new_clients_in_week = sqlContext.sql(query)
@@ -597,3 +598,99 @@ def mapCrashes_new(row):
         group = 1
 
     return (group, 1)
+
+
+def mapCrashes_secondWeek(row):
+    """
+    Applied to an RDD, this mapping function returns a list for each Row of the dataframe.
+
+    @params:
+        row: [Row] a row from a longitudinal RDD that includes:
+            - pcd: profile_creation_date
+            - sd: submission_date
+            - ssl: subsession_length
+            - cssm: crash_submit_success_main
+            - cdc: crash_detected_main
+            - cdpgmp: crash_detected_plugin + crash_detected_gmplugin
+
+    @logic:
+        For each profile, determine whether the profile crashed in the first two weeks since pcd.
+        Also, determine whether the profile crashed in the second week of activity since pcd.
+        Finally, also get the number of days to the first crash (from pcd)
+    """
+
+    # return the sum of all crashes for a given submission date index
+    def sumCrashes(row, index):
+        return sum([row.cssm[index], row.cdc[index]])
+    
+    # return boolean whether there was a crash for a given submission date index
+    def isCrash(row, index):
+        return sumCrashes(row, index) > 0
+
+    # sort row lists by submission_date (chronological)
+    def sort_row(row):
+        zipped = sorted(zip(row.sd, row.cdc, row.cssm, row.cdpgmp, row.ssl), reverse=False)
+        sd, cdc, cssm, cdpgmp, ssl = zip(*zipped)
+        return Row(cid=row.cid,
+                   pcd=row.pcd,
+                   sd=list(sd),
+                   ssl=list(ssl),
+                   cdc=list(cdc),
+                   cssm=list(cssm),
+                   cdpgmp=list(cdpgmp))
+
+    # sort the row by submission_date
+    sorted_row = sort_row(row)
+    
+    second_week = int2date(sorted_row.pcd) + timedelta(days=7)
+
+    # get dates for first two weeks of activity
+    start_date_int = sorted_row.pcd
+    end_date_int = start_date_int + 13
+    start_date_str = date2str(int2date(start_date_int))
+    end_date_str = date2str(int2date(end_date_int))
+    
+    has_crashed = False
+    days_to_first_crash = None
+    first_crash_date = None
+    crashed_second_week = False
+
+    # iterate through all subsessions (brute force):
+    for index, submission_date in enumerate(sorted_row.sd):
+        # if date is between what we want, the count number of crashes that day
+        if submission_date <= end_date_str:
+            # if the profile crashed on that day...
+            if isCrash(sorted_row, index):
+                # if the profile has not had their first crash yet...
+                if not has_crashed:
+                    first_crash_date = submission_date
+                    days_to_first_crash = (str2date(first_crash_date) - int2date(sorted_row.pcd)).days
+                    has_crashed = True
+                    # if the first crash is in the second week of activity
+                    if str2date(submission_date) >= second_week:
+                        crashed_second_week = True
+                        break # we can break since we got all the info we wanted from that profile
+        # since the list is sorted, we can break as soon as we pass the end_date variable
+        else:
+            break
+    
+    try:
+        first_crash_date = str2date(first_crash_date)
+    except:
+        pass
+
+    return (has_crashed,                 # whether the profile crashed within the first 2 weeks since pcd
+            crashed_second_week,         # whether the profile only crashed in the second week since pcd
+            days_to_first_crash)         # number of days from pcd to first recorded crash
+
+
+def make_new_df(counts_crashed, cols=["has_crashed", "crashed_second_week", "days_to_first_crash"]):
+    """
+    This function creates and returns a pandas dataframe from a list of lists.
+
+    @params:
+        counts_crashed: [list] List of lists with data to convert to a pandas DF
+        cols: [list] List of column names for the pandas DF
+    """
+    return  DataFrame(counts_crashed, columns=cols)
+

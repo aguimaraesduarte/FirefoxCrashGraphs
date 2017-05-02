@@ -125,8 +125,6 @@ def main_alg():
                .format(crash_statistics_counts[True]*100,
                        float(crash_statistics_counts[True])/num_profiles_crashed[0])
 
-
-        ##### start of new profiles (3 weeks ago) that had 2 weeks to crash
         # get subset of aggregated dataframe containing only the pings for profiles that were created 3 weeks prior
         aggregate_new = aggregate_new_users(aggregateDF_str, start_date_str, end_date_str)
         new_longitudinal = make_longitudinal(aggregate_new)
@@ -134,15 +132,29 @@ def main_alg():
 
         # get counts of new user types
         new_statistics_counts = new_statistics.countByKey()
-        new__crashed = new_statistics_counts[1]
+        new_crashed = new_statistics_counts[1]
         new_tot = new_statistics_counts[0]+new_statistics_counts[1]
         print "\tNew profiles created between {} and {}: {:,}"\
-              .format((str2date(end_date_str)-timedelta(days=19)).isoformat(),
-                      (str2date(end_date_str)-timedelta(days=13)).isoformat(),
+              .format((str2date(start_date_str)-timedelta(days=14)).isoformat(),
+                      (str2date(end_date_str)-timedelta(days=14)).isoformat(),
                       new_tot*100)
         print "\tNumber of new profiles that crashed 1+ times within 2 weeks of profile creation: {:,} ({:.2%} of new users)"\
-               .format(new__crashed*100, float(new__crashed)/new_tot)
-        ##### end of new profiles (3 weeks ago) that had 2 weeks to crash
+               .format(new_crashed*100, float(new_crashed)/new_tot)
+
+        # get profiles that crashed in the second week of activity since profile creation
+        new_statistics = new_longitudinal.rdd.map(mapCrashes_secondWeek)
+        # get counts of profiles that crashed and those that crashed only during their second week of activity
+        new_statistics_counts_bis = new_statistics.collect()
+        new_statistics_counts_crashed = [n for n in new_statistics_counts_bis if n[0] is True]
+        p = make_new_df(new_statistics_counts_crashed, ["has_crashed", "crashed_second_week", "days_to_first_crash"])
+        p2 = p[p.crashed_second_week == True]
+        print "\tNumber of new profiles that crashed 1+ times 8-14 days after profile creation: {:,} ({:.2%} of new profiles that crashed, {:.2%} of new profiles)"\
+              .format(p2.shape[0]*100, p2.shape[0]*1.0/new_crashed, p2.shape[0]*1.0/new_tot)
+        # get number of days to first crash statistics
+        s = p[p.days_to_first_crash >= 0].days_to_first_crash.describe(percentiles = [.1, .25, .5, .75, .9])
+        print "\t\tMean number of days to first crash: {:.2f}".format(s["mean"])
+        print "\t\tMedian number of days to first crash: {:.2f}".format(s["50%"])
+        print "\t\t90th percentile of days to first crash: {:.2f}".format(s["90%"])
 
         # calculate counts for e10s
         e10s_counts = get_e10s_counts(aggregateDF_str, start_date_str, end_date_str)
@@ -153,18 +165,18 @@ def main_alg():
 
         # calculate crash rates
         crash_rates_avg_by_user = get_crash_rates_by_user(aggregateDF_str, start_date_str, end_date_str)
-        print "\tMain crashes per hour: {}".format(crash_rates_avg_by_user[0]*1000)
-        print "\tContent crashes per hour: {}".format(crash_rates_avg_by_user[1]*1000)
-        print "\tPlugin crashes per hour: {}".format(crash_rates_avg_by_user[2]*1000)
+        print "\tMain crashes per hour: {:.2f}".format(crash_rates_avg_by_user[0]*1000)
+        print "\tContent crashes per hour: {:.2f}".format(crash_rates_avg_by_user[1]*1000)
+        print "\tPlugin crashes per hour: {:.2f}".format(crash_rates_avg_by_user[2]*1000)
 
         # calculate crash rates by e10s status
         crash_rates_avg_by_user_and_e10s = get_crash_rates_by_user_and_e10s(aggregateDF_str, start_date_str, end_date_str)
-        print "\tMain crashes per hour (e10s enabled): {}".format(crash_rates_avg_by_user_and_e10s[0]*1000)
-        print "\tContent crashes per hour (e10s enabled): {}".format(crash_rates_avg_by_user_and_e10s[1]*1000)
-        print "\tPlugin crashes per hour (e10s enabled): {}".format(crash_rates_avg_by_user_and_e10s[2]*1000)
-        print "\tMain crashes per hour (e10s disabled): {}".format(crash_rates_avg_by_user_and_e10s[3]*1000)
-        print "\tContent crashes per hour (e10s disabled): {}".format(crash_rates_avg_by_user_and_e10s[4]*1000)
-        print "\tPlugin crashes per hour (e10s disabled): {}".format(crash_rates_avg_by_user_and_e10s[5]*1000)
+        print "\tMain crashes per hour (e10s enabled): {:.2f}".format(crash_rates_avg_by_user_and_e10s[0]*1000)
+        print "\tContent crashes per hour (e10s enabled): {:.2f}".format(crash_rates_avg_by_user_and_e10s[1]*1000)
+        print "\tPlugin crashes per hour (e10s enabled): {:.2f}".format(crash_rates_avg_by_user_and_e10s[2]*1000)
+        print "\tMain crashes per hour (e10s disabled): {:.2f}".format(crash_rates_avg_by_user_and_e10s[3]*1000)
+        print "\tContent crashes per hour (e10s disabled): {:.2f}".format(crash_rates_avg_by_user_and_e10s[4]*1000)
+        print "\tPlugin crashes per hour (e10s disabled): {:.2f}".format(crash_rates_avg_by_user_and_e10s[5]*1000)
 
         # get crash statistics
         print "***** SAVING CRASH DATA TO JSON...",
@@ -178,7 +190,7 @@ def main_alg():
         crash_statistics_pd = RDD_to_pandas(crash_statistics) #TODO: combine the two to_pandas operations into one. This operation is expensive.
         summary = make_dict_results(end_date, wau7, num_new_profiles, num_profiles_crashed, num_new_profiles_crashed, 
                                     crash_statistics_counts, crash_rates_avg_by_user, crash_rates_avg_by_user_and_e10s,
-                                    crash_statistics_pd, e10s_counts, new_statistics_counts, CRASH_GRANULARITY)
+                                    crash_statistics_pd, e10s_counts, new_statistics_counts, p2.shape[0], CRASH_GRANULARITY)
         write_dict_json("fx_crashgraphs", summary, start_date_str, end_date_str, S3_BUCKET_NAME, S3_PATH, SAVE_TO_S3)
         print "DONE!"
 
