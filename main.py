@@ -138,7 +138,7 @@ def main_alg():
               .format((str2date(start_date_str)-timedelta(days=14)).isoformat(),
                       (str2date(end_date_str)-timedelta(days=14)).isoformat(),
                       new_tot*100)
-        print "\tNumber of new profiles that crashed 1+ times within 2 weeks of profile creation: {:,} ({:.2%} of new users)"\
+        print "\tNumber of new profiles that crashed 1+ times within 2 weeks of profile creation: {:,} ({:.2%} of new profiles)"\
                .format(new_crashed*100, float(new_crashed)/new_tot)
 
         # get profiles that crashed in the second week of activity since profile creation
