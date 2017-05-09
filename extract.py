@@ -17,7 +17,10 @@ def read_main_summary():
     """
 
     # connect to the main_summary dataset
-    allPingsDF = sqlContext.read.load("s3://telemetry-parquet/main_summary/v3", "parquet", mergeSchema=True)
+    try:
+      allPingsDF = sqlContext.read.load("s3://telemetry-parquet/main_summary/v4", "parquet", mergeSchema=True)
+    except:
+      allPingsDF = sqlContext.read.load("s3://telemetry-parquet/main_summary/v3", "parquet", mergeSchema=True)
 
     # perform variable selection with column renaming
     allPingsDFSelect = allPingsDF.select(
